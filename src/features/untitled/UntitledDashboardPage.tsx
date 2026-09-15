@@ -1,0 +1,296 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/Button';
+import { useAuthStore, useConfigStore } from '@/stores';
+import {
+  filterRouterAccounts,
+  routerPolicy,
+  type RouterFilter,
+  type RouterWindow,
+} from '@/services/api/untitled';
+import { useUntitledOverview } from './useUntitledOverview';
+import styles from './UntitledDashboardPage.module.scss';
+
+function QuotaMeter({ window, label }: { window: RouterWindow; label: string }) {
+  const { t, i18n } = useTranslation();
+  const remaining = window.remaining;
+  const reset =
+    window.resetAt === null
+      ? null
+      : new Date(window.resetAt).toLocaleString(i18n.language, {
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+        });
+  return (
+    <div className={styles.meter}>
+      <div className={styles.meterLabel}>
+        <span>{label}</span>
+        <strong>
+          {remaining === null
+            ? t('untitled.unavailable')
+            : t('untitled.percent_remaining', { value: Math.round(remaining) })}
+        </strong>
+      </div>
+      {remaining === null ? (
+        <div className={styles.emptyTrack} aria-hidden="true" />
+      ) : (
+        <div
+          className={styles.track}
+          role="meter"
+          aria-label={label}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={remaining}
+          aria-valuetext={t('untitled.percent_remaining', { value: Math.round(remaining) })}
+        >
+          <span className={remaining <= 15 ? styles.low : ''} style={{ width: `${remaining}%` }} />
+        </div>
+      )}
+      <div className={styles.reset}>
+        {reset ? t('untitled.resets', { time: reset }) : t('untitled.reset_unavailable')}
+      </div>
+    </div>
+  );
+}
+
+export function UntitledDashboardPage() {
+  const { t, i18n } = useTranslation();
+  const { accounts, checkedAt, loading, error, routingError, refresh } = useUntitledOverview();
+  const supportsPlugin = useAuthStore((state) => state.supportsPlugin);
+  const config = useConfigStore((state) => state.config);
+  const [filter, setFilter] = useState<RouterFilter>('all');
+  const visible = filterRouterAccounts(accounts, filter);
+  const active = accounts.filter((account) => account.status === 'active').length;
+  const success = accounts.reduce((count, account) => count + account.success, 0);
+  const failed = accounts.reduce((count, account) => count + account.failed, 0);
+  const { strategy, affinity } = routerPolicy(routingError ? null : config);
+  const strategyLabel =
+    strategy === 'round-robin'
+      ? t('untitled.round_robin')
+      : strategy === 'fill-first'
+        ? t('untitled.fill_first')
+        : (strategy ?? t('untitled.unavailable'));
+  const time = (value: number) =>
+    new Date(value).toLocaleTimeString(i18n.language, {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  const hasSnapshot = checkedAt !== null;
+  return (
+    <div className={styles.dashboard}>
+      <section className={styles.heading}>
+        <div>
+          <div className={styles.eyebrow}>{t('untitled.workspace')}</div>
+          <h1>{t('untitled.overview')}</h1>
+          <p>{t('untitled.subtitle')}</p>
+        </div>
+        <div className={styles.headingActions}>
+          <span>
+            {checkedAt
+              ? t('untitled.checked', { time: time(checkedAt) })
+              : t('untitled.awaiting_data')}
+          </span>
+          <Button variant="secondary" size="sm" onClick={() => void refresh()} loading={loading}>
+            {t('untitled.refresh')}
+          </Button>
+        </div>
+      </section>
+      {error && (
+        <div role="alert" className={styles.alert}>
+          {t(hasSnapshot ? 'untitled.refresh_error' : 'untitled.load_error')}
+        </div>
+      )}
+      <section className={styles.summary} aria-label={t('untitled.summary')}>
+        <div>
+          <span>{t('untitled.active_connections')}</span>
+          <strong>
+            {hasSnapshot ? String(active).padStart(2, '0') : '—'}
+            <small>/ {hasSnapshot ? accounts.length : '—'}</small>
+          </strong>
+          <p>{t('untitled.codex_oauth')}</p>
+        </div>
+        <div>
+          <span>{t('untitled.successful_requests')}</span>
+          <strong>{hasSnapshot ? success.toLocaleString(i18n.language) : '—'}</strong>
+          <p>{t('untitled.counter_scope')}</p>
+        </div>
+        <div>
+          <span>{t('untitled.failed_requests')}</span>
+          <strong>{hasSnapshot ? failed.toLocaleString(i18n.language) : '—'}</strong>
+          <p>{t('untitled.counter_scope')}</p>
+        </div>
+        <div className={styles.routingStat}>
+          <span>{t('untitled.routing')}</span>
+          <strong>{strategyLabel}</strong>
+          <p role={routingError ? 'status' : undefined}>
+            {t(
+              routingError
+                ? 'untitled.routing_unavailable'
+                : affinity === true
+                  ? 'untitled.affinity_on'
+                  : affinity === false
+                    ? 'untitled.affinity_off'
+                    : 'untitled.affinity_unknown'
+            )}
+          </p>
+        </div>
+      </section>
+      <section aria-labelledby="router-pool-heading">
+        <div className={styles.sectionHeading}>
+          <div>
+            <h2 id="router-pool-heading">
+              {t('untitled.connected_accounts')}
+              <span>{accounts.length}</span>
+            </h2>
+            <p>{t('untitled.pool_description')}</p>
+          </div>
+          <Link to="/auth-files">
+            {t('untitled.manage_accounts')} <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+        <div className={styles.filters} role="group" aria-label={t('untitled.filter_accounts')}>
+          {(
+            [
+              'all',
+              'pro',
+              'business',
+              ...(accounts.some((account) => account.plan === 'other') ? ['other'] : []),
+            ] as RouterFilter[]
+          ).map((value) => (
+            <button key={value} aria-pressed={filter === value} onClick={() => setFilter(value)}>
+              {t(`untitled.filter_${value}`)}
+              <span>{filterRouterAccounts(accounts, value).length}</span>
+            </button>
+          ))}
+        </div>
+        <div className={styles.accounts} aria-busy={loading}>
+          {visible.map((account) => (
+            <article
+              className={`${styles.account} ${account.plan === 'business' ? styles.business : ''}`}
+              key={account.key}
+            >
+              <header>
+                <div className={styles.accountIdentity}>
+                  <div className={styles.accountIcon} aria-hidden="true">
+                    {account.plan === 'business' ? 'B' : account.plan === 'pro' ? 'P' : 'C'}
+                  </div>
+                  <div>
+                    <h3>{t(`untitled.plan_${account.plan}`)}</h3>
+                    <p>{t('untitled.codex_subscription')}</p>
+                  </div>
+                </div>
+                <span
+                  className={`${styles.status} ${account.status === 'active' ? styles.active : ''}`}
+                >
+                  <i />
+                  {t(`untitled.status_${account.status}`)}
+                </span>
+              </header>
+              <div className={styles.quotaHeading}>
+                <span>{t('untitled.available_capacity')}</span>
+                <span>{t('untitled.provider_reported')}</span>
+              </div>
+              <QuotaMeter label={t('untitled.five_hour')} window={account.quota.fiveHour} />
+              <QuotaMeter label={t('untitled.weekly')} window={account.quota.weekly} />
+              {account.quotaError && (
+                <p className={styles.quotaError}>{t('untitled.quota_error')}</p>
+              )}
+              <div className={styles.accountCounters}>
+                <div>
+                  <span>{t('untitled.success')}</span>
+                  <strong>{account.success.toLocaleString(i18n.language)}</strong>
+                </div>
+                <div>
+                  <span>{t('untitled.failed')}</span>
+                  <strong>{account.failed.toLocaleString(i18n.language)}</strong>
+                </div>
+                <span>{t('untitled.counter_scope')}</span>
+              </div>
+              <footer>
+                <span>
+                  {account.checkedAt
+                    ? t('untitled.checked', { time: time(account.checkedAt) })
+                    : t('untitled.not_checked')}
+                </span>
+                <Link to="/quota">
+                  {t('untitled.quota_details')} <span aria-hidden="true">↗</span>
+                </Link>
+              </footer>
+            </article>
+          ))}
+          {visible.length === 0 && (
+            <div className={styles.empty}>
+              <h3>
+                {t(
+                  loading && !hasSnapshot
+                    ? 'untitled.loading'
+                    : error && !hasSnapshot
+                      ? 'untitled.load_error'
+                      : 'untitled.empty_title'
+                )}
+              </h3>
+              <p>
+                {t(loading && !hasSnapshot ? 'untitled.loading_detail' : 'untitled.empty_detail')}
+              </p>
+              <Link to="/oauth">
+                {t('untitled.connect_account')} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+      <section aria-labelledby="router-next-heading">
+        <div className={styles.sectionHeading}>
+          <div>
+            <h2 id="router-next-heading">{t('untitled.other_integrations')}</h2>
+            <p>{t('untitled.integration_scope')}</p>
+          </div>
+        </div>
+        <div className={styles.integrations}>
+          <article>
+            <div className={styles.integrationIcon} aria-hidden="true">
+              ↗
+            </div>
+            <div>
+              <h3>
+                {t('untitled.cursor_name')}
+                <span>{t('untitled.not_connected')}</span>
+              </h3>
+              <p>{t('untitled.cursor_detail')}</p>
+              {supportsPlugin && (
+                <Link to="/plugins">
+                  {t('untitled.review_plugins')} <span aria-hidden="true">→</span>
+                </Link>
+              )}
+            </div>
+          </article>
+          <article>
+            <div className={styles.integrationIcon} aria-hidden="true">
+              ＋
+            </div>
+            <div>
+              <h3>
+                {t('untitled.api_name')}
+                <span>{t('untitled.not_connected')}</span>
+              </h3>
+              <p>{t('untitled.api_detail')}</p>
+              <Link to="/ai-providers">
+                {t('untitled.provider_settings')} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </article>
+        </div>
+      </section>
+      <footer className={styles.pageFooter}>
+        <span>{t('untitled.refresh_note')}</span>
+        <Link to="/dashboard">
+          {t('untitled.standard_dashboard')} <span aria-hidden="true">↗</span>
+        </Link>
+      </footer>
+    </div>
+  );
+}
