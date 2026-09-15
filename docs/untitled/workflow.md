@@ -58,7 +58,7 @@ After deployment, verify the authenticated overview shows live Pro and Business 
 
 ## Dashboard validation — 2026-09-15
 
-- `bun run verify`: 652 tests passed across 89 files, 0 failed; ESLint, TypeScript, and the single-file production build passed.
+- `bun run verify`: 660 tests passed across 89 files, 0 failed; ESLint, TypeScript, and the single-file production build passed.
 - Live Ubuntu panel: both subscriptions active; account totals and provider-reported quota loaded successfully. The Pro account exposed only a weekly window, so the five-hour meter correctly showed Unavailable.
 - Business-only filter, manual refresh, automatic refresh, Manage, Logs, Settings, the standard layout fallback, and return to the custom overview were verified. Logout removed the protected dashboard; signing back in restored live data.
 - Desktop appearance was inspected. Narrow layouts stacked the account cards, and DOM measurements showed no document-level horizontal overflow at observed widths of 425 and 845 CSS pixels. The browser viewport screenshot tool produced capture artifacts at overridden sizes, so those captures were not used as polished visual evidence.
@@ -72,4 +72,13 @@ Simplification retained the quota and session safety checks. Shared object, prov
 
 `ce-code-review` completed with run ID `20260915-170349-f0e58920`. Seven local review lenses and one cross-model pass produced four validated findings. All four were resolved: omitted false affinity values, unsupported plugin navigation, coupled account/config refresh failures, and a source import alias. The external route requested Grok through Cursor but did not attest the actual serving model, effort, or independence.
 
-The refresh regressions exercise successful accounts with failed/slow config, account failures, aborts, and obsolete-request completions. A full browser test that switches servers or management keys during a pending request is not automated; the callback boundary is tested and the live logout/login path was verified. No security findings or unresolved actionable review findings remain.
+The refresh regressions exercise successful accounts with failed/slow config, account failures, aborts, and obsolete-request completions. A full browser test that switches servers or management keys during a pending request is not automated; the callback boundary is tested and the live logout/login path was verified. That initial review left no security findings or unresolved actionable findings.
+
+
+## PR feedback follow-up — 2026-09-15
+
+The later GitHub review raised four additional findings: three fixed in this follow-up and one declined under the overview’s existing product scope. These are separate from the four initial local review fixes above.
+
+The overview now fetches quota when a credential has an auth index but no account ID header, and uses a successful usage response’s plan metadata before auth-file metadata. Eight regression cases cover account selection, plan precedence, normalization, and fallback. Exact five-hour and weekly duration classification is unchanged; monthly quota display remains outside this overview’s scope.
+
+The custom layout now uses the existing `PageTransition` component for document scroll reset and history restoration. `bun run verify` passed with 660 tests, ESLint, TypeScript, and the single-file production build. Local browser verification was unavailable because browser tab creation failed; the deploying maintainer still needs to verify custom-route navigation and back/forward scroll behavior against the installed artifact.

@@ -108,6 +108,58 @@ describe('Untitled gateway reads', () => {
       header: { Authorization: 'Bearer $TOKEN$', 'Chatgpt-Account-Id': 'example-workspace' },
     });
   });
+  test('fetches quota by auth index without an account ID header', async () => {
+    spyOn(authFilesApi, 'list').mockResolvedValue({
+      files: [{ name: 'pro.json', provider: 'codex', authIndex: 'example-index', status: 'active' }],
+    });
+    const request = spyOn(apiCallApi, 'request').mockResolvedValue({
+      statusCode: 200,
+      header: {},
+      bodyText: '',
+      body: { rate_limit: { primary_window: { limit_window_seconds: 18000, used_percent: 25 } } },
+    });
+    const [account] = await untitledApi.listAccounts(new AbortController().signal);
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(request.mock.calls[0][0]).toMatchObject({
+      authIndex: 'example-index',
+      method: 'GET',
+      header: { Authorization: 'Bearer $TOKEN$' },
+    });
+    expect(request.mock.calls[0][0].header).not.toHaveProperty('Chatgpt-Account-Id');
+    expect(account.quota.fiveHour.remaining).toBe(75);
+    expect(account.quotaError).toBe(false);
+    expect(account.checkedAt).toBeNumber();
+  });
+  test.each([
+    [{ plan_type: ' PRO ' }, 'team', 'pro'],
+    [{ planType: ' Team ' }, 'pro', 'business'],
+    [{ plan_type: 'BUSINESS' }, 'pro', 'business'],
+    [{ plan_type: 'plus' }, 'pro', 'other'],
+    [{}, 'team', 'business'],
+    [{ plan_type: null }, 'pro', 'pro'],
+    [{ planType: ' ' }, 'pro', 'pro'],
+  ])('prefers normalized usage plan %j over file plan %s', async (usage, filePlan, expected) => {
+    spyOn(authFilesApi, 'list').mockResolvedValue({
+      files: [
+        {
+          name: 'account.json',
+          provider: 'codex',
+          authIndex: 'example-index',
+          status: 'active',
+          id_token: { plan_type: filePlan, chatgpt_account_id: 'example-workspace' },
+        },
+      ],
+    });
+    spyOn(apiCallApi, 'request').mockResolvedValue({
+      statusCode: 200,
+      header: {},
+      bodyText: '',
+      body: usage,
+    });
+    const [account] = await untitledApi.listAccounts(new AbortController().signal);
+    expect(account.plan).toBe(expected);
+    expect(filterRouterAccounts([account], account.plan)).toEqual([account]);
+  });
   test('upstream errors leave quota unavailable instead of reusing a full meter', async () => {
     spyOn(authFilesApi, 'list').mockResolvedValue({
       files: [
@@ -143,7 +195,14 @@ describe('Untitled gateway reads', () => {
   });
   test('missing credentials never fall back to a random account for quota', async () => {
     spyOn(authFilesApi, 'list').mockResolvedValue({
-      files: [{ name: 'a', provider: 'codex', status: 'active' }],
+      files: [
+        {
+          name: 'a',
+          provider: 'codex',
+          status: 'active',
+          id_token: { chatgpt_account_id: 'example-workspace' },
+        },
+      ],
     });
     const request = spyOn(apiCallApi, 'request');
     const [account] = await untitledApi.listAccounts(new AbortController().signal);

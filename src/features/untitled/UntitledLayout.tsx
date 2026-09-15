@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MainRoutes } from '@/router/MainRoutes';
+import { PageTransition } from '@/components/common/PageTransition';
 import {
   useAuthStore,
   useConfigStore,
@@ -164,7 +165,7 @@ export function UntitledLayout({ onStandardLayout }: { onStandardLayout: () => v
         className={`${styles.content} ${pathname === '/logs' ? styles.logs : ''}`}
         tabIndex={-1}
       >
-        <MainRoutes />
+        <PageTransition render={(location) => <MainRoutes location={location} />} />
       </main>
       <footer className={styles.footer}>
         <span>{t('untitled.workspace')}</span>

@@ -8,6 +8,7 @@ import {
   isCodexFile,
   CODEX_REQUEST_HEADERS,
   CODEX_USAGE_URL,
+  normalizePlanType,
   resolveCodexChatgptAccountId,
   resolveCodexPlanType,
 } from '@/utils/quota';
@@ -37,11 +38,14 @@ const normalizeRouterStatus = (file: AuthFileItem): RouterAccount['status'] => {
   return file.status === 'active' ? 'active' : 'unknown';
 };
 
+const classifyRouterPlan = (plan: string | null): RouterPlan =>
+  plan === 'pro' ? 'pro' : plan === 'team' || plan === 'business' ? 'business' : 'other';
+
 export const normalizeRouterAccount = (file: AuthFileItem): RouterAccount => {
   const plan = resolveCodexPlanType(file);
   return {
     key: normalizeAuthIndex(file.authIndex) ?? '',
-    plan: plan === 'pro' ? 'pro' : plan === 'team' || plan === 'business' ? 'business' : 'other',
+    plan: classifyRouterPlan(plan),
     status: normalizeRouterStatus(file),
     success: file.successCount ?? 0,
     failed: file.failureCount ?? 0,
@@ -96,21 +100,30 @@ export const untitledApi = {
           checkedAt: null,
         };
         const accountId = resolveCodexChatgptAccountId(file);
-        if (account.status === 'disabled' || !account.key || !accountId) return empty;
+        if (account.status === 'disabled' || !account.key) return empty;
+        const header: Record<string, string> = { ...CODEX_REQUEST_HEADERS };
+        if (accountId) header['Chatgpt-Account-Id'] = accountId;
         try {
           const result = await apiCallApi.request(
             {
               authIndex: account.key,
               method: 'GET',
               url: CODEX_USAGE_URL,
-              header: { ...CODEX_REQUEST_HEADERS, 'Chatgpt-Account-Id': accountId },
+              header,
             },
             { signal, timeout: 20000 }
           );
           if (result.statusCode < 200 || result.statusCode >= 300) {
             return { ...empty, quotaError: true };
           }
-          return { ...empty, quota: normalizeRouterQuota(result.body), checkedAt: Date.now() };
+          const payload = record(result.body);
+          const usagePlan = normalizePlanType(payload.plan_type ?? payload.planType);
+          return {
+            ...empty,
+            plan: usagePlan ? classifyRouterPlan(usagePlan) : empty.plan,
+            quota: normalizeRouterQuota(result.body),
+            checkedAt: Date.now(),
+          };
         } catch {
           return { ...empty, quotaError: true };
         }
