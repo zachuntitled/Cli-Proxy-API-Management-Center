@@ -116,16 +116,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    > span {
-      display: inline-grid;
-      place-items: center;
-      border: 1px solid var(--router-border);
-      min-width: 21px;
-      height: 19px;
-      border-radius: 5px;
-      color: var(--text-secondary);
-      font-size: 10px;
-    }
   }
   p {
     color: var(--text-tertiary);
@@ -140,6 +130,11 @@
   }
 }
 .filters {
+  > span {
+    color: var(--text-secondary);
+    font-size: 11px;
+    margin-right: 8px;
+  }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -201,6 +196,24 @@
       color: var(--text-secondary);
     }
   }
+}
+.cursorAccount {
+  display: flex;
+  flex-direction: column;
+  > header {
+    flex-wrap: wrap;
+  }
+  > footer {
+    margin-top: auto;
+  }
+}
+.cursorDetails {
+  display: grid;
+  gap: 18px;
+  padding: 0 24px 24px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.65;
 }
 .business {
   --account-color: #aa9bd4;
