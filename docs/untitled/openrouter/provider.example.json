@@ -1,0 +1,43 @@
+{
+  "name": "openrouter",
+  "base-url": "https://openrouter.ai/api/v1",
+  "api-key-entries": [],
+  "models": [
+    {
+      "name": "anthropic/claude-fable-5.1",
+      "alias": "openrouter/claude-fable-5.1",
+      "display-name": "Anthropic: Claude Fable 5.1 (OpenRouter)",
+      "max-context-length": 1000000
+    },
+    {
+      "name": "anthropic/claude-opus-5",
+      "alias": "openrouter/claude-opus-5",
+      "display-name": "Anthropic: Claude Opus 5 (OpenRouter)",
+      "max-context-length": 1000000
+    },
+    {
+      "name": "z-ai/glm-5.3-flash",
+      "alias": "openrouter/glm-5.3-flash",
+      "display-name": "Z.ai: GLM 5.3 Flash (OpenRouter)",
+      "max-context-length": 1310720
+    },
+    {
+      "name": "deepseek/deepseek-v4.1-flash",
+      "alias": "openrouter/deepseek-v4.1-flash",
+      "display-name": "DeepSeek: DeepSeek V4.1 Flash (OpenRouter)",
+      "max-context-length": 1048576
+    },
+    {
+      "name": "qwen/qwen3.8-flash",
+      "alias": "openrouter/qwen3.8-flash",
+      "display-name": "Qwen: Qwen3.8 Flash (OpenRouter)",
+      "max-context-length": 1000000
+    },
+    {
+      "name": "qwen/qwen3.8-max-0902",
+      "alias": "openrouter/qwen3.8-max-0902",
+      "display-name": "Qwen: Qwen3.8 Max (0902) (OpenRouter)",
+      "max-context-length": 1000000
+    }
+  ]
+}
