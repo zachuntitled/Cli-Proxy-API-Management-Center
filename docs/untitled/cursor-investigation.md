@@ -1,29 +1,45 @@
-# Cursor Pro+ integration investigation
+# Cursor subscription integration
 
-Checked 2026-09-15. Status: **not connected to this router**. Neither option below has been authenticated or run against the user's intended Pro+ account as part of this investigation.
+Verified 2026-09-16: **connected to the Untitled router** using the intended Pro+ account. The Cursor account dashboard showed **On-Demand Usage is Off**; no billing settings were changed.
 
-## Official agent-job integration
+## Deployment
 
-Cursor provides a Python agent SDK with local and cloud execution. Personal user API keys can authenticate SDK calls. Existing CLI login does not prove SDK access or the selected identity.
+The main router remains upstream CLIProxyAPI v7.3.4. Cursor uses the community `yobo2u/omsub` plugin v0.5.10 in a separate instance of the same binary. The archive and contained plugin checksums were verified against the release assets.
 
-The SDK documentation states usage follows the IDE/Cloud pricing and request pools. `get_usage()` can expose billed cost after settlement; missing cost is unknown. Available models and billing/overage settings must be checked for the actual Pro+ account. This is an agent job interface, not a raw OpenAI-compatible inference API. Route complete bounded jobs to it rather than assuming it can replace an in-progress Codex model call.
+- [Plugin registry](https://github.com/router-for-me/CLIProxyAPI-Plugins-Store/blob/main/registry.json)
+- [Pinned release](https://github.com/yobo2u/omsub/releases/tag/v0.5.10)
+- Archive SHA256: `5bf24a9a3a4c675d6e1eda3fc90025fa0e24abac6970d51a7083af997d13de52`
 
-- [Official Python SDK](https://prod.cursor.com/docs/sdk/python)
-- [Official SDK authentication](https://github.com/cursor/plugins/blob/main/cursor-sdk/skills/cursor-sdk/references/auth.md)
-- [Models and pricing](https://cursor.com/docs/models-and-pricing)
+`cliproxyapi-cursor-test.service` is enabled at boot and listens only on `127.0.0.1:18317`. Its dedicated `cursor-router-test` Unix account and private state directory isolate its OAuth credentials from the main router's Codex credentials. Systemd restricts filesystem writes to its own configuration/state, protects home directories, and prevents privilege escalation. The main router loads no Cursor plugin.
 
-## Community CLIProxyAPI provider
+The main router's `cursor-subscription` OpenAI-compatible provider forwards three explicit model names to this local instance:
 
-The official CLIProxyAPI plugin registry now lists `cursor` by `yobo2u`, from `yobo2u/omsub`. Native v7.3.4 core has no Cursor executor, but this plugin offers another path.
+- `cursor/composer-2.5`
+- `cursor/cursor-grok-4.6-low`
+- `cursor/claude-fable-5-low`
 
-- [Registry](https://github.com/router-for-me/CLIProxyAPI-Plugins-Store/blob/main/registry.json)
-- [Plugin source](https://github.com/yobo2u/omsub/tree/cursor/cursor-plugin)
-- [Published v0.5.10 release](https://github.com/yobo2u/omsub/releases/tag/v0.5.10)
+Only these tested models are exposed. Existing Codex credentials, routing, and the default model remain unchanged. These explicit names select Cursor; they do not enter the Codex credential pool. Main configuration comparison found only `openai-compatibility` changed, and the main router was not restarted.
 
-The latest published release observed was v0.5.10; branch documentation described source v0.6.1. The author reports Linux amd64 validation against CLIProxyAPI v7.2.154, which is not proof against our v7.3.4 installation. It uses Cursor CLI protocol/OAuth endpoints rather than the official agent SDK. Chat Completions is exposed under `cursor/<model>`; Responses depends on gateway translation. Remaining subscription quota is unavailable, and reported tokens are estimates rather than billing evidence. Registry inclusion does not establish compatibility or Cursor endorsement.
+## Verified behavior
 
-## Recommended next experiment
+- OAuth completed with the intended account; authentication persisted after restarting the isolated service.
+- Client authentication and management authentication remain separate. Unauthenticated inference and client-key management calls returned 401.
+- All three models completed a Responses request through the main router. The existing `gpt-5.6-luna` route also passed.
+- Composer passed non-streaming and streaming Chat Completions, tool calls and tool-result continuation, multi-turn continuity, translated Responses, streaming Responses, and invalid-model rejection.
+- A client disconnect ended the gateway request. Upstream cancellation and billing effects were not independently established.
+- Composer generated a Python function through a Responses function call; it passed 10 independent cases.
+- The actual `codex-router` client selected `cursor/composer-2.5`, read a bounded fixture, implemented its Python function, and ran the unchanged four-test suite successfully. Independent host verification also passed. Codex displayed an unknown-model metadata warning; the request still used the explicitly selected Cursor model.
 
-For adding Cursor specifically to the model pool, test the pinned community plugin in a separate router instance, with the intended personal account and verified overage controls, before enabling it in the existing service. Exercise model discovery, ordinary responses, streaming, tools, multi-turn continuity, cancellation, errors, and usage attribution. Record the exact plugin/server versions and distinguish estimated tokens from settled charges. If this contract cannot be verified, use official SDK agent jobs as a separate route.
+## Status and usage boundaries
 
-For now the dashboard should label Cursor **Not connected**, link to the integration options, show no fabricated quota, and exclude it from active account counts/balancing. The local Cursor CLI was present and reported authenticated, but identity and subscription billing were deliberately not inspected or changed.
+The dashboard reports **Configured** from the normalized provider configuration. This means a usable route is configured, not that a live health or quota check succeeded. Loading and failed configuration reads show an unavailable state; disabled providers show disabled.
+
+Cursor does not expose remaining subscription quota through this plugin. Token figures are estimates, not settled billing evidence. Cursor is excluded from Codex subscription counts and quota meters. Check actual usage in Cursor's account dashboard. Registry inclusion is not Cursor endorsement; this community provider uses Cursor CLI protocol/OAuth endpoints rather than the official agent SDK.
+
+## Operations and rollback
+
+On `cloud-1`, inspect `systemctl status cliproxyapi-cursor-test` and its journal for connection or authentication failures. The service can restart independently of the main router. A healthy route returns a completed response for an explicit Cursor model; repeated authentication/upstream errors or failures in previously working Codex requests warrant rollback investigation.
+
+To disable this integration, disable the `cursor-subscription` provider in provider settings, then stop the isolated service if needed. Preserve its private credentials for a reversible rollback; do not paste them into this repository. Private test evidence and pre-change configuration backups are under the operator's `~/.config/cliproxyapi-cursor-test/` directory on the VM.
+
+The official [Cursor Python SDK](https://prod.cursor.com/docs/sdk/python) remains a separate agent-job alternative. It is not the transport used here.

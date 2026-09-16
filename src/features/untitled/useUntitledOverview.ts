@@ -16,6 +16,7 @@ export function useUntitledOverview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [routingErrorConnection, setRoutingErrorConnection] = useState<string | null>(null);
+  const [configReadConnection, setConfigReadConnection] = useState<string | null>(null);
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
   // This value is local-only and never persisted or rendered.
@@ -27,6 +28,7 @@ export function useUntitledOverview() {
     const request = ++generation.current;
     if (!authenticated) return;
     setLoading(true);
+    setConfigReadConnection(null);
     setError(false);
     const matchesSession = () => {
       const current = useAuthStore.getState();
@@ -45,7 +47,10 @@ export function useUntitledOverview() {
       loadConfig: () => useConfigStore.getState().fetchConfig(true),
       onAccounts: (accounts) => setSnapshot({ connection, accounts, checkedAt: Date.now() }),
       onAccountsError: () => setError(true),
-      onRoutingError: (failed) => setRoutingErrorConnection(failed ? connection : null),
+      onRoutingError: (failed) => {
+        setRoutingErrorConnection(failed ? connection : null);
+        setConfigReadConnection(connection);
+      },
     });
     if (matchesSession()) setLoading(false);
   }, [apiBase, managementKey, authenticated, connection]);
@@ -67,6 +72,7 @@ export function useUntitledOverview() {
     loading,
     error,
     routingError: routingErrorConnection === connection,
+    configLoading: !authenticated || configReadConnection !== connection,
     refresh,
   };
 }
