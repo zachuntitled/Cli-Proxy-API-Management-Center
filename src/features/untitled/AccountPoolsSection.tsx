@@ -159,7 +159,10 @@ export function AccountPools({
             )}
         </article>
         <article className={styles.openrouter}>
-          <h3>OpenRouter</h3>
+          <h3>
+            <ProviderMark provider="openrouter" />
+            OpenRouter
+          </h3>
           <p className={styles.label}>{t('untitled.pools_credit_balance')}</p>
           <div className={styles.value}>
             {openrouter.remaining === null ? '—' : money(openrouter.remaining)}

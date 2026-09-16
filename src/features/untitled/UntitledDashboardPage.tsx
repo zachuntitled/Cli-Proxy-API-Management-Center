@@ -271,31 +271,6 @@ export function UntitledDashboardPage() {
           )}
         </div>
       </section>
-      <section aria-labelledby="router-next-heading">
-        <div className={styles.sectionHeading}>
-          <div>
-            <h2 id="router-next-heading">{t('untitled.other_integrations')}</h2>
-            <p>{t('untitled.integration_scope')}</p>
-          </div>
-        </div>
-        <div className={styles.integrations}>
-          <article>
-            <div className={styles.integrationIcon} aria-hidden="true">
-              ＋
-            </div>
-            <div>
-              <h3>
-                {t('untitled.api_name')}
-                <span>{t('untitled.not_connected')}</span>
-              </h3>
-              <p>{t('untitled.api_detail')}</p>
-              <Link to="/ai-providers">
-                {t('untitled.provider_settings')} <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-          </article>
-        </div>
-      </section>
       <footer className={styles.pageFooter}>
         <span>{t('untitled.refresh_note')}</span>
         <Link to="/dashboard">
