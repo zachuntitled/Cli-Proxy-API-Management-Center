@@ -7,16 +7,15 @@ import {
   filterRouterAccounts,
   routerPolicy,
   type RouterFilter,
-  type RouterPlan,
   type RouterWindow,
 } from '@/services/api/untitled';
+import { AccountPools } from './AccountPoolsSection';
+import { ProviderMark } from './ProviderMark';
 import { CreditBalance } from './CreditBalance';
 import { CursorIntegration } from './CursorIntegration';
 import { cursorIntegrationState } from './cursorIntegrationState';
 import { useUntitledOverview } from './useUntitledOverview';
 import styles from './UntitledDashboardPage.module.scss';
-
-const planIcons: Record<RouterPlan, string> = { pro: 'P', prolite: 'L', business: 'B', other: 'C' };
 
 function QuotaMeter({ window, label }: { window: RouterWindow; label: string }) {
   const { t, i18n } = useTranslation();
@@ -64,8 +63,17 @@ function QuotaMeter({ window, label }: { window: RouterWindow; label: string }) 
 
 export function UntitledDashboardPage() {
   const { t, i18n } = useTranslation();
-  const { accounts, checkedAt, loading, error, routingError, configLoading, refresh, cursorUsage } =
-    useUntitledOverview();
+  const {
+    accounts,
+    checkedAt,
+    loading,
+    error,
+    routingError,
+    configLoading,
+    refresh,
+    cursorUsage,
+    openrouterCredits,
+  } = useUntitledOverview();
   const config = useConfigStore((state) => state.config);
   const cursorState = cursorIntegrationState(config, {
     loading: configLoading,
@@ -149,6 +157,15 @@ export function UntitledDashboardPage() {
           </p>
         </div>
       </section>
+      <AccountPools
+        accounts={accounts}
+        loading={loading}
+        error={error}
+        checkedAt={checkedAt}
+        cursorState={cursorState}
+        cursorUsage={cursorUsage}
+        openrouterCredits={openrouterCredits}
+      />
       <section aria-labelledby="router-pool-heading">
         <div className={styles.sectionHeading}>
           <div>
@@ -186,7 +203,7 @@ export function UntitledDashboardPage() {
               <header>
                 <div className={styles.accountIdentity}>
                   <div className={styles.accountIcon} aria-hidden="true">
-                    {planIcons[account.plan]}
+                    <ProviderMark provider="openai" />
                   </div>
                   <div>
                     <h3>{t(`untitled.plan_${account.plan}`)}</h3>

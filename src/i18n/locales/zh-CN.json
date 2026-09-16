@@ -1933,6 +1933,27 @@
     "cursor_usage_unavailable": "用量不可用。",
     "cursor_usage_partial": "部分用量数据不可用。",
     "cursor_usage_resets": "重置时间：{{time}}",
-    "cursor_usage_observed": "上次获取：{{time}}"
+    "cursor_usage_observed": "上次获取：{{time}}",
+    "pools_title": "账户总额度",
+    "pools_description": "各提供商剩余的订阅额度和预付余额。",
+    "pools_weekly": "每周剩余额度",
+    "pools_remaining": "剩余 {{value}}",
+    "pools_remaining_label": "剩余",
+    "pools_of": "总计 {{value}}",
+    "pools_codex_meter": "Codex 每周剩余额度",
+    "pools_refresh_failed": "刷新失败。额度不可用。",
+    "pools_no_accounts": "没有可用的 Codex 账户。",
+    "pools_partial": "部分数据 · {{total}} 个账户中有 {{known}} 个已报告",
+    "pools_accounts": "{{count}} 个账户 · 每周额度",
+    "pools_cursor_meter": "Cursor {{name}} 剩余额度",
+    "pools_credit_balance": "余额 · 美元",
+    "pools_purchased": "已购买 {{value}}",
+    "pools_openrouter_meter": "OpenRouter 剩余余额",
+    "pools_credits_fresh": "已购买余额减去用量。",
+    "pools_credits_loading": "正在加载余额…",
+    "pools_credits_disabled": "OpenRouter 已禁用。",
+    "pools_credits_not_configured": "尚未配置 OpenRouter。",
+    "pools_credits_auth_required": "请检查 OpenRouter API 密钥。",
+    "pools_credits_unavailable": "余额不可用。"
   }
 }

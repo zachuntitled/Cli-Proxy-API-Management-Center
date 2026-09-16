@@ -1929,6 +1929,27 @@
     "cursor_usage_unavailable": "Данные об использовании недоступны.",
     "cursor_usage_partial": "Часть данных об использовании недоступна.",
     "cursor_usage_resets": "Сброс: {{time}}",
-    "cursor_usage_observed": "Последнее обновление: {{time}}"
+    "cursor_usage_observed": "Последнее обновление: {{time}}",
+    "pools_title": "Общие лимиты",
+    "pools_description": "Остатки лимитов подписок и предоплаченных средств провайдеров.",
+    "pools_weekly": "Остаток недельного лимита",
+    "pools_remaining": "Осталось {{value}}",
+    "pools_remaining_label": "Осталось",
+    "pools_of": "из {{value}} всего",
+    "pools_codex_meter": "Остаток недельного лимита Codex",
+    "pools_refresh_failed": "Не удалось обновить. Лимит недоступен.",
+    "pools_no_accounts": "Нет доступных аккаунтов Codex.",
+    "pools_partial": "Неполные данные · {{known}} из {{total}} аккаунтов",
+    "pools_accounts": "Аккаунтов: {{count}} · недельный лимит",
+    "pools_cursor_meter": "Остаток Cursor: {{name}}",
+    "pools_credit_balance": "Баланс · USD",
+    "pools_purchased": "из купленных {{value}}",
+    "pools_openrouter_meter": "Остаток средств OpenRouter",
+    "pools_credits_fresh": "Купленные средства за вычетом расходов.",
+    "pools_credits_loading": "Загрузка баланса…",
+    "pools_credits_disabled": "OpenRouter отключён.",
+    "pools_credits_not_configured": "OpenRouter не настроен.",
+    "pools_credits_auth_required": "Проверьте API-ключ OpenRouter.",
+    "pools_credits_unavailable": "Баланс недоступен."
   }
 }
