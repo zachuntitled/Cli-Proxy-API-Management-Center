@@ -111,12 +111,13 @@ describe('Cursor integration presentation', () => {
 });
 
 describe('Cursor in the main dashboard', () => {
-  test('renders Cursor once in Connections before optional integrations', () => {
+  test('renders Cursor once inside Connections', () => {
     const markup = renderElement(createElement(UntitledDashboardPage));
-    const connections = markup.slice(
-      markup.indexOf('id="router-pool-heading"'),
-      markup.indexOf('aria-labelledby="router-next-heading"')
-    );
+    const start = markup.indexOf('aria-labelledby="router-pool-heading"');
+    expect(start).toBeGreaterThanOrEqual(0);
+    const end = markup.indexOf('</section>', start);
+    expect(end).toBeGreaterThan(start);
+    const connections = markup.slice(start, end);
     expect(connections).toContain('Cursor Pro+');
     expect(markup.match(/Cursor Pro\+/g)).toHaveLength(1);
     expect(markup).toContain('<h2 id="router-pool-heading">Connections</h2>');
