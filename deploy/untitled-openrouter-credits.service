@@ -1,0 +1,35 @@
+[Unit]
+Description=Read-only OpenRouter account credits bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cliproxyapi
+Group=cliproxyapi
+# Requires python3-yaml. Reuse the existing service identity/config permissions.
+# Never copy provider keys into this unit or widen configuration permissions.
+ExecStart=/usr/bin/python3 -B /opt/untitled-openrouter-credits/openrouter_credits.py --config-file /etc/cliproxyapi/config.yaml
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadOnlyPaths=/
+InaccessiblePaths=/tmp /var/tmp
+StandardOutput=null
+StandardError=null
+
+[Install]
+WantedBy=multi-user.target
