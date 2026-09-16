@@ -80,6 +80,14 @@ export function AccountPools({
     openrouter.remaining === null
       ? t('untitled.unavailable')
       : t('untitled.pools_remaining', { value: money(openrouter.remaining) });
+  const codexNote = () => {
+    if (error) return t('untitled.pools_refresh_failed');
+    if (loading && checkedAt === null) return t('untitled.loading');
+    if (codex.total === 0) return t('untitled.pools_no_accounts');
+    if (codex.partial)
+      return t('untitled.pools_partial', { known: codex.known, total: codex.total });
+    return t('untitled.pools_accounts', { count: codex.total });
+  };
   return (
     <section aria-labelledby="account-pools-heading">
       <div className={styles.heading}>
@@ -108,17 +116,7 @@ export function AccountPools({
             label={t('untitled.pools_codex_meter')}
             text={codexText}
           />
-          <p className={styles.note}>
-            {error
-              ? t('untitled.pools_refresh_failed')
-              : loading && checkedAt === null
-                ? t('untitled.loading')
-                : codex.total === 0
-                  ? t('untitled.pools_no_accounts')
-                  : codex.partial
-                    ? t('untitled.pools_partial', { known: codex.known, total: codex.total })
-                    : t('untitled.pools_accounts', { count: codex.total })}
-          </p>
+          <p className={styles.note}>{codexNote()}</p>
         </article>
         <article className={styles.cursor}>
           <h3>
