@@ -1919,6 +1919,20 @@
     "credits_unlimited": "无限",
     "credits_unavailable": "不可用",
     "credit_balance_not_reported": "点数可用，但服务商未提供余额。",
-    "credits_scope": "账户或工作区使用点数 · 与 API 计费分开。"
+    "credits_scope": "账户或工作区使用点数 · 与 API 计费分开。",
+    "cursor_usage_cursor_models": "Cursor 模型",
+    "cursor_usage_other_models": "其他模型",
+    "cursor_usage_includes": "包含 Cursor Grok 和 Composer",
+    "cursor_usage_cursor_overflow": "超出限额的额外用量将消耗其他模型配额或按需付费额度。",
+    "cursor_usage_other_overflow": "超出限额的额外用量将按需计费。",
+    "cursor_usage_used": "已使用 {{value}}",
+    "cursor_usage_loading": "正在加载用量…",
+    "cursor_usage_fresh": "实时用量",
+    "cursor_usage_stale": "用量已过期 — 显示上次成功获取的数据。",
+    "cursor_usage_auth_required": "请重新登录 Cursor 以查看订阅用量。",
+    "cursor_usage_unavailable": "用量不可用。",
+    "cursor_usage_partial": "部分用量数据不可用。",
+    "cursor_usage_resets": "重置时间：{{time}}",
+    "cursor_usage_observed": "上次获取：{{time}}"
   }
 }

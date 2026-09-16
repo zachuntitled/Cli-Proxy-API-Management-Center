@@ -522,3 +522,54 @@
     line-height: 1.5;
   }
 }
+
+.cursorPools {
+  min-width: 0;
+}
+.cursorPool {
+  padding: 18px 0;
+  & + & {
+    border-top: 1px solid var(--router-border);
+  }
+  p {
+    color: var(--text-tertiary);
+    overflow-wrap: anywhere;
+  }
+}
+.cursorPoolHeading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 12px;
+  color: var(--text-primary);
+  h4 {
+    font-size: 12px;
+    font-weight: 500;
+  }
+  > span {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+}
+.cursorBar {
+  height: 6px;
+  margin: 12px 0 9px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--router-border);
+  > span {
+    display: block;
+    height: 100%;
+    background: #73a9ed;
+  }
+}
+.cursorOtherBar > span {
+  background: var(--text-secondary);
+}
+.cursorTimes {
+  padding-top: 14px;
+  border-top: 1px solid var(--router-border);
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}

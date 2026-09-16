@@ -8,6 +8,7 @@ import { isRecord } from '@/utils/helpers';
 
 export interface ApiCallRequest {
   authIndex?: string;
+  proxy_url?: 'direct';
   method: string;
   url: string;
   header?: Record<string, string>;

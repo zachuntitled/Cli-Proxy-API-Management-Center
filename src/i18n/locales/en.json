@@ -1921,6 +1921,20 @@
     "credits_unlimited": "Unlimited",
     "credits_unavailable": "Unavailable",
     "credit_balance_not_reported": "Credits are available; the provider does not report the balance.",
-    "credits_scope": "Account or workspace usage credits · separate from API billing."
+    "credits_scope": "Account or workspace usage credits · separate from API billing.",
+    "cursor_usage_cursor_models": "Cursor Models",
+    "cursor_usage_other_models": "Other Models",
+    "cursor_usage_includes": "Includes Cursor Grok and Composer",
+    "cursor_usage_cursor_overflow": "Additional usage beyond limits consumes Other Models quota or on-demand spend.",
+    "cursor_usage_other_overflow": "Additional usage beyond limits consumes on-demand spend.",
+    "cursor_usage_used": "{{value}} used",
+    "cursor_usage_loading": "Loading usage…",
+    "cursor_usage_fresh": "Live usage",
+    "cursor_usage_stale": "Stale usage — last successful observation shown.",
+    "cursor_usage_auth_required": "Sign in to Cursor again to view subscription usage.",
+    "cursor_usage_unavailable": "Usage unavailable.",
+    "cursor_usage_partial": "Some usage data is unavailable.",
+    "cursor_usage_resets": "Resets {{time}}",
+    "cursor_usage_observed": "Last observed {{time}}"
   }
 }
