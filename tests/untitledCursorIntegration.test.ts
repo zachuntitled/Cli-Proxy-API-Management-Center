@@ -48,12 +48,13 @@ describe('Cursor integration configuration state', () => {
   });
 });
 
-import { createElement } from 'react';
+import { createElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { createInstance } from 'i18next';
 import { I18nextProvider } from 'react-i18next';
 import { CursorIntegration } from '@/features/untitled/CursorIntegration';
+import { UntitledDashboardPage } from '@/features/untitled/UntitledDashboardPage';
 import type { CursorIntegrationState } from '@/features/untitled/cursorIntegrationState';
 import en from '@/i18n/locales/en.json';
 import zhCN from '@/i18n/locales/zh-CN.json';
@@ -62,18 +63,13 @@ import ru from '@/i18n/locales/ru.json';
 
 const i18n = createInstance();
 await i18n.init({ lng: 'en', resources: { en: { translation: en } } });
-const render = (state: CursorIntegrationState) =>
+const renderElement = (element: ReactElement) =>
   renderToStaticMarkup(
-    createElement(
-      I18nextProvider,
-      { i18n },
-      createElement(
-        MemoryRouter,
-        {},
-        createElement(CursorIntegration, { state })
-      )
-    )
+    createElement(I18nextProvider, { i18n }, createElement(MemoryRouter, {}, element))
   );
+
+const render = (state: CursorIntegrationState) =>
+  renderElement(createElement(CursorIntegration, { state }));
 
 describe('Cursor integration presentation', () => {
   test('missing route links to provider settings for the isolated integration', () => {
@@ -111,5 +107,30 @@ describe('Cursor integration presentation', () => {
       }
       expect(locale.untitled.cursor_quota_unavailable.trim()).not.toBe('');
     }
+  });
+});
+
+describe('Cursor in the main dashboard', () => {
+  test('renders Cursor once in Connections before optional integrations', () => {
+    const markup = renderElement(createElement(UntitledDashboardPage));
+    const connections = markup.slice(
+      markup.indexOf('id="router-pool-heading"'),
+      markup.indexOf('aria-labelledby="router-next-heading"')
+    );
+    expect(connections).toContain('Cursor Pro+');
+    expect(markup.match(/Cursor Pro\+/g)).toHaveLength(1);
+    expect(markup).toContain('<h2 id="router-pool-heading">Connections</h2>');
+    expect(markup).toContain('Active Codex accounts');
+    expect(markup).toContain('Successful Codex requests');
+    expect(markup).toContain('Failed Codex requests');
+    expect(markup).toContain('Filter Codex accounts');
+  });
+
+  test('the Cursor card uses a full account header and always exposes provider settings', () => {
+    const markup = render('configured');
+    expect(markup).toContain('<header>');
+    expect(markup).toContain('<footer>');
+    expect(markup).toContain('Cursor subscription');
+    expect(markup).toContain('href="/ai-providers"');
   });
 });

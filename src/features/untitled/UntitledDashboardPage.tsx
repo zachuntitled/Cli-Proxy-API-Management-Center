@@ -152,10 +152,7 @@ export function UntitledDashboardPage() {
       <section aria-labelledby="router-pool-heading">
         <div className={styles.sectionHeading}>
           <div>
-            <h2 id="router-pool-heading">
-              {t('untitled.connected_accounts')}
-              <span>{accounts.length}</span>
-            </h2>
+            <h2 id="router-pool-heading">{t('untitled.connected_accounts')}</h2>
             <p>{t('untitled.pool_description')}</p>
           </div>
           <Link to="/auth-files">
@@ -163,6 +160,7 @@ export function UntitledDashboardPage() {
           </Link>
         </div>
         <div className={styles.filters} role="group" aria-label={t('untitled.filter_accounts')}>
+          <span>{t('untitled.filter_accounts')}</span>
           {(
             [
               'all',
@@ -179,6 +177,7 @@ export function UntitledDashboardPage() {
           ))}
         </div>
         <div className={styles.accounts} aria-busy={loading}>
+          <CursorIntegration state={cursorState} />
           {visible.map((account) => (
             <article
               className={`${styles.account} ${account.plan === 'business' ? styles.business : ''}`}
@@ -263,7 +262,6 @@ export function UntitledDashboardPage() {
           </div>
         </div>
         <div className={styles.integrations}>
-          <CursorIntegration state={cursorState} />
           <article>
             <div className={styles.integrationIcon} aria-hidden="true">
               ＋
