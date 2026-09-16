@@ -1,0 +1,35 @@
+[Unit]
+Description=Read-only Cursor subscription usage bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cursor-router-test
+Group=cursor-router-test
+# Replace the placeholder with the existing isolated service's exact private OAuth file.
+# Never copy a token into the unit or widen that file's permissions.
+ExecStart=/usr/bin/python3 -B /opt/untitled-cursor-usage/cursor_usage.py --auth-file @CURSOR_AUTH_FILE@
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadOnlyPaths=/
+InaccessiblePaths=/tmp /var/tmp
+StandardOutput=null
+StandardError=null
+
+[Install]
+WantedBy=multi-user.target

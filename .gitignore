@@ -33,3 +33,6 @@ settings.local.json
 *.njsproj
 *.sln
 *.sw?
+
+# Local Python bridge test artifacts
+server/__pycache__/

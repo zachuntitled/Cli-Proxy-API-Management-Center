@@ -84,7 +84,7 @@ describe('Cursor integration presentation', () => {
     expect(markup).toContain('href="/ai-providers"');
     expect(markup).not.toContain('href="/plugins"');
     expect(markup).toContain('does not verify service health');
-    expect(markup).toContain('Subscription remaining: unavailable.');
+    expect(markup).toContain('Usage unavailable.');
     expect(markup).not.toContain('role="meter"');
   });
 
@@ -133,4 +133,112 @@ describe('Cursor in the main dashboard', () => {
     expect(markup).toContain('Cursor subscription');
     expect(markup).toContain('href="/ai-providers"');
   });
+});
+
+const observedAtMs = Date.now();
+const usage = {
+  version: 1 as const,
+  status: 'fresh' as const,
+  cursorPercentUsed: 0.4491666667,
+  otherPercentUsed: 0.4909090909,
+  observedAtMs,
+  cycleStartMs: observedAtMs - 1000,
+  cycleEndMs: observedAtMs + 1000000,
+};
+
+describe('Cursor subscription pools', () => {
+  test('renders two used-percentage bars, precise small values, captions and times', () => {
+    const markup = renderElement(createElement(CursorIntegration, { state: 'configured', usage }));
+    expect(markup.match(/role="progressbar"/g)).toHaveLength(2);
+    for (const text of [
+      'Cursor Models',
+      'Other Models',
+      'Includes Cursor Grok and Composer',
+      '0.45% used',
+      '0.49% used',
+      'Additional usage beyond limits consumes Other Models quota or on-demand spend.',
+      'Additional usage beyond limits consumes on-demand spend.',
+      'Last observed',
+      'Resets',
+    ])
+      expect(markup).toContain(text);
+    expect(markup).toContain('aria-valuenow="0.4491666667"');
+    expect(markup).toContain('width:0.4491666667%');
+  });
+  test('partial usage stays unknown and over-100 readouts clamp only their bar', () => {
+    const markup = renderElement(
+      createElement(CursorIntegration, {
+        state: 'configured',
+        usage: {
+          ...usage,
+          cursorPercentUsed: null,
+          otherPercentUsed: 125.1234,
+        },
+      })
+    );
+    expect(markup.match(/role="progressbar"/g)).toHaveLength(1);
+    expect(markup).toContain('125.12% used');
+    expect(markup).toContain('width:100%');
+    expect(markup).toContain('aria-valuenow="100"');
+    expect(markup).toContain('aria-valuetext="125.12% used"');
+    expect(markup).toContain('Some usage data is unavailable');
+  });
+  test('loading, auth, stale, unavailable and disabled states are distinct', () => {
+    for (const [status, text] of [
+      ['loading', 'Loading usage'],
+      ['auth_required', 'Sign in to Cursor'],
+      ['unavailable', 'Usage unavailable'],
+      ['stale', 'Stale usage'],
+    ] as const) {
+      const markup = renderElement(
+        createElement(CursorIntegration, { state: 'configured', usage: { ...usage, status } })
+      );
+      expect(markup).toContain(text);
+      expect(markup.match(/role="progressbar"/g)?.length ?? 0).toBe(status === 'stale' ? 2 : 0);
+    }
+    expect(
+      renderElement(createElement(CursorIntegration, { state: 'disabled', usage }))
+    ).not.toContain('0.45%');
+  });
+  test('renders translated accessible pool names and locale-aware percentages in every locale', async () => {
+    for (const [lng, locale] of Object.entries({ en, 'zh-CN': zhCN, 'zh-TW': zhTW, ru })) {
+      const local = createInstance();
+      await local.init({ lng, resources: { [lng]: { translation: locale } } });
+      const markup = renderToStaticMarkup(
+        createElement(
+          I18nextProvider,
+          { i18n: local },
+          createElement(
+            MemoryRouter,
+            {},
+            createElement(CursorIntegration, { state: 'configured', usage })
+          )
+        )
+      );
+      expect(markup).not.toContain('untitled.cursor_usage_');
+      expect(markup.match(/role="progressbar"/g)).toHaveLength(2);
+      expect(markup).toContain(`aria-label="${locale.untitled.cursor_usage_cursor_models}"`);
+      expect(markup).toContain(
+        new Intl.NumberFormat(lng, { style: 'percent', maximumFractionDigits: 2 }).format(
+          0.4491666667 / 100
+        )
+      );
+    }
+  });
+});
+
+test('expired snapshots cannot render values even before a delayed resume callback runs', () => {
+  for (const expired of [
+    { ...usage, observedAtMs: Date.now() - 60000 },
+    { ...usage, status: 'stale' as const, observedAtMs: Date.now() - 300000 },
+    { ...usage, cycleEndMs: Date.now() - 1 },
+  ]) {
+    const markup = renderElement(
+      createElement(CursorIntegration, { state: 'configured', usage: expired })
+    );
+    expect(markup).toContain('Usage unavailable');
+    expect(markup).not.toContain('role="progressbar"');
+    expect(markup).not.toContain('0.45%');
+    expect(markup).not.toContain('Last observed');
+  }
 });

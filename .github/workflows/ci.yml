@@ -30,3 +30,6 @@ jobs:
 
       - name: Verify
         run: bun run verify
+
+      - name: Test Cursor usage bridge
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s server -p 'test_*.py'

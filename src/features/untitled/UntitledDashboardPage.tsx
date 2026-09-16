@@ -64,7 +64,7 @@ function QuotaMeter({ window, label }: { window: RouterWindow; label: string }) 
 
 export function UntitledDashboardPage() {
   const { t, i18n } = useTranslation();
-  const { accounts, checkedAt, loading, error, routingError, configLoading, refresh } =
+  const { accounts, checkedAt, loading, error, routingError, configLoading, refresh, cursorUsage } =
     useUntitledOverview();
   const config = useConfigStore((state) => state.config);
   const cursorState = cursorIntegrationState(config, {
@@ -177,7 +177,7 @@ export function UntitledDashboardPage() {
           ))}
         </div>
         <div className={styles.accounts} aria-busy={loading}>
-          <CursorIntegration state={cursorState} />
+          <CursorIntegration state={cursorState} usage={cursorUsage} />
           {visible.map((account) => (
             <article
               className={`${styles.account} ${account.plan === 'business' ? styles.business : ''}`}

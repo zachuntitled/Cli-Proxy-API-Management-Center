@@ -1915,6 +1915,20 @@
     "credits_unlimited": "Без ограничений",
     "credits_unavailable": "Недоступно",
     "credit_balance_not_reported": "Кредиты доступны, но провайдер не сообщает баланс.",
-    "credits_scope": "Кредиты аккаунта или рабочего пространства · отдельно от оплаты API."
+    "credits_scope": "Кредиты аккаунта или рабочего пространства · отдельно от оплаты API.",
+    "cursor_usage_cursor_models": "Модели Cursor",
+    "cursor_usage_other_models": "Другие модели",
+    "cursor_usage_includes": "Включает Cursor Grok и Composer",
+    "cursor_usage_cursor_overflow": "При превышении лимита используется квота других моделей или оплата по факту использования.",
+    "cursor_usage_other_overflow": "При превышении лимита применяется оплата по факту использования.",
+    "cursor_usage_used": "Использовано {{value}}",
+    "cursor_usage_loading": "Загрузка использования…",
+    "cursor_usage_fresh": "Актуальное использование",
+    "cursor_usage_stale": "Устаревшие данные — показано последнее успешное обновление.",
+    "cursor_usage_auth_required": "Войдите в Cursor снова, чтобы просмотреть использование подписки.",
+    "cursor_usage_unavailable": "Данные об использовании недоступны.",
+    "cursor_usage_partial": "Часть данных об использовании недоступна.",
+    "cursor_usage_resets": "Сброс: {{time}}",
+    "cursor_usage_observed": "Последнее обновление: {{time}}"
   }
 }
