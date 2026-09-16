@@ -1959,6 +1959,27 @@
     "cursor_usage_unavailable": "用量無法取得。",
     "cursor_usage_partial": "部分用量資料無法取得。",
     "cursor_usage_resets": "重設時間：{{time}}",
-    "cursor_usage_observed": "上次取得：{{time}}"
+    "cursor_usage_observed": "上次取得：{{time}}",
+    "pools_title": "帳戶總額度",
+    "pools_description": "各提供商剩餘的訂閱額度和預付餘額。",
+    "pools_weekly": "每週剩餘額度",
+    "pools_remaining": "剩餘 {{value}}",
+    "pools_remaining_label": "剩餘",
+    "pools_of": "總計 {{value}}",
+    "pools_codex_meter": "Codex 每週剩餘額度",
+    "pools_refresh_failed": "重新整理失敗。額度無法取得。",
+    "pools_no_accounts": "沒有可用的 Codex 帳戶。",
+    "pools_partial": "部分資料 · {{total}} 個帳戶中有 {{known}} 個已回報",
+    "pools_accounts": "{{count}} 個帳戶 · 每週額度",
+    "pools_cursor_meter": "Cursor {{name}} 剩餘額度",
+    "pools_credit_balance": "餘額 · 美元",
+    "pools_purchased": "已購買 {{value}}",
+    "pools_openrouter_meter": "OpenRouter 剩餘餘額",
+    "pools_credits_fresh": "已購買餘額減去用量。",
+    "pools_credits_loading": "正在載入餘額…",
+    "pools_credits_disabled": "OpenRouter 已停用。",
+    "pools_credits_not_configured": "尚未設定 OpenRouter。",
+    "pools_credits_auth_required": "請檢查 OpenRouter API 金鑰。",
+    "pools_credits_unavailable": "餘額無法取得。"
   }
 }

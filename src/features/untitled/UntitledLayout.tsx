@@ -13,6 +13,7 @@ import {
 import { triggerHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { LANGUAGE_ORDER, LANGUAGE_LABEL_KEYS } from '@/utils/constants';
 import type { Theme } from '@/types';
+import untitledCreativeMark from '@/assets/untitled-creative.png';
 import styles from './UntitledLayout.module.scss';
 
 export function UntitledLayout({ onStandardLayout }: { onStandardLayout: () => void }) {
@@ -79,7 +80,7 @@ export function UntitledLayout({ onStandardLayout }: { onStandardLayout: () => v
       <header className={styles.header}>
         <Link to="/" className={styles.brand} aria-label={t('untitled.home')}>
           <span className={styles.brandMark} aria-hidden="true">
-            u.
+            <img src={untitledCreativeMark} alt="" />
           </span>
           <strong>
             UNTITLED <span>/</span> <em>ROUTER</em>

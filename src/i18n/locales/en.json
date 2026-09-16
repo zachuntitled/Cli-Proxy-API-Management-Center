@@ -1935,6 +1935,27 @@
     "cursor_usage_unavailable": "Usage unavailable.",
     "cursor_usage_partial": "Some usage data is unavailable.",
     "cursor_usage_resets": "Resets {{time}}",
-    "cursor_usage_observed": "Last observed {{time}}"
+    "cursor_usage_observed": "Last observed {{time}}",
+    "pools_title": "Account pools",
+    "pools_description": "Remaining subscription capacity and prepaid credits across your providers.",
+    "pools_weekly": "Weekly capacity remaining",
+    "pools_remaining": "{{value}} remaining",
+    "pools_remaining_label": "Remaining",
+    "pools_of": "of {{value}} total",
+    "pools_codex_meter": "Codex weekly capacity remaining",
+    "pools_refresh_failed": "Refresh failed. Capacity unavailable.",
+    "pools_no_accounts": "No Codex accounts available.",
+    "pools_partial": "Partial · {{known}} of {{total}} accounts reported",
+    "pools_accounts": "{{count}} accounts · weekly quota",
+    "pools_cursor_meter": "Cursor {{name}} remaining",
+    "pools_credit_balance": "Credit balance · USD",
+    "pools_purchased": "of {{value}} purchased",
+    "pools_openrouter_meter": "OpenRouter credit balance remaining",
+    "pools_credits_fresh": "Purchased credits minus usage.",
+    "pools_credits_loading": "Loading credit balance…",
+    "pools_credits_disabled": "OpenRouter is disabled.",
+    "pools_credits_not_configured": "OpenRouter is not configured.",
+    "pools_credits_auth_required": "Check your OpenRouter API key.",
+    "pools_credits_unavailable": "Credit balance unavailable."
   }
 }

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { emptyCursorUsage, expireCursorUsage, type CursorUsage } from '@/services/api/cursorUsage';
 import type { CursorIntegrationState } from './cursorIntegrationState';
+import { ProviderMark } from './ProviderMark';
 import styles from './UntitledDashboardPage.module.scss';
 
 export function CursorIntegration({
@@ -41,7 +42,7 @@ export function CursorIntegration({
       <header>
         <div className={styles.accountIdentity}>
           <div className={styles.accountIcon} aria-hidden="true">
-            ↗
+            <ProviderMark provider="cursor" />
           </div>
           <div>
             <h3>{t('untitled.cursor_name')}</h3>

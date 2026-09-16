@@ -31,5 +31,8 @@ jobs:
       - name: Verify
         run: bun run verify
 
-      - name: Test Cursor usage bridge
+      - name: Install Python bridge test dependency
+        run: python3 -m pip install -r server/requirements.txt
+
+      - name: Test read-only provider bridges
         run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s server -p 'test_*.py'
