@@ -34,7 +34,7 @@ Only these tested models are exposed. Existing Codex credentials, routing, and t
 
 The dashboard reports **Configured** from the normalized provider configuration. This means a usable route is configured, not that a live health or quota check succeeded. Loading and failed configuration reads show an unavailable state; disabled providers show disabled.
 
-Cursor does not expose remaining subscription quota through this plugin. Token figures are estimates, not settled billing evidence. Cursor is excluded from Codex subscription counts and quota meters. Check actual usage in Cursor's account dashboard. Registry inclusion is not Cursor endorsement; this community provider uses Cursor CLI protocol/OAuth endpoints rather than the official agent SDK.
+The plugin does not expose subscription quota. A separate [read-only usage bridge](cursor-usage.md) now queries Cursor's account usage endpoint using the isolated service's existing OAuth credentials. The dashboard shows Cursor Models and Other Models as separate percentages used, with observation and reset dates. These readings establish usage availability, not inference health. Missing or expired data is unavailable; no token-based quota estimates are shown. Cursor remains excluded from Codex subscription counts and quota meters. The internal usage endpoint can change; Cursor's account dashboard remains the fallback. Registry inclusion is not Cursor endorsement; this community provider uses Cursor CLI protocol/OAuth endpoints rather than the official agent SDK.
 
 ## Operations and rollback
 

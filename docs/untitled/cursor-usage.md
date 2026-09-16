@@ -95,3 +95,31 @@ To roll back, restore the previous dashboard HTML, then stop and disable only
 `untitled-cursor-usage.service`. Leave existing inference services and their OAuth
 files intact. Deployment evidence and the served dashboard check belong to the
 rollout record; unit tests alone do not establish live behavior.
+
+## Verified rollout: 2026-09-16
+
+The bridge was installed on `cloud-1` with an IPv4 loopback listener. Both direct
+and authenticated management requests returned the version 1 allowlist, with
+Cursor Models at 0.5208333333% used and Other Models at 0.4909090909% used.
+Unauthenticated management requests returned 401, and port 18318 refused remote
+connections. Existing Cursor OAuth ownership and mode 0600 were preserved.
+
+The deployed dashboard displayed 0.52% and 0.49%, plus the provider's October 15
+reset date. Desktop and 390px layouts were inspected; Codex filtering preserved
+the Cursor card. Stopping only the bridge produced Usage unavailable while Codex
+cards continued refreshing; restarting it restored the two live readings. There
+were no browser console errors before the intentional outage. The dashboard
+refreshes while visible, and clears expired observations rather than inventing
+stale usage. Browser suspension and provider-side billing rollover are covered by
+expiry/invalidation tests rather than a live billing-cycle wait.
+
+Validation passed: 706 frontend tests, ESLint, TypeScript, production build, and
+17 Python bridge tests. CI runs both suites. The initial deployed HTML SHA-256 was
+`1aa2d7e55c1c06be088131be2a5166f881eec680cec2a9547491b5f1883bf479`;
+the previous HTML was retained as `management.before-cursor-usage-6551899.html`.
+
+During verification, a concurrent provider configuration replacement left the
+main configuration root-owned and unreadable to its service user. Restoring
+`cliproxyapi:cliproxyapi` ownership, retaining mode 0600 and all configuration
+content, restored service. Future atomic configuration replacements must preserve
+ownership as well as mode. This repair did not change provider or billing settings.
