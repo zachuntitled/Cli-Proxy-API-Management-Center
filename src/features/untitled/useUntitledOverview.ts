@@ -14,8 +14,10 @@ import { refreshCursorUsage } from './refreshCursorUsage';
 import { subscribeCursorUsageInvalidation } from './cursorUsageInvalidation';
 import { watchCursorUsageExpiry } from './watchCursorUsageExpiry';
 import type { OpenAIProviderConfig } from '@/types';
+import { useOpenrouterCredits } from './useOpenrouterCredits';
 
 export function useUntitledOverview() {
+  const { openrouterCredits, refreshCredits } = useOpenrouterCredits();
   const apiBase = useAuthStore((state) => state.apiBase);
   const managementKey = useAuthStore((state) => state.managementKey);
   const authenticated = useAuthStore((state) => state.isAuthenticated);
@@ -113,6 +115,7 @@ export function useUntitledOverview() {
       onAccounts: (accounts) => setSnapshot({ connection, accounts, checkedAt: Date.now() }),
       onAccountsError: () => setError(true),
       onRoutingError: (failed) => {
+        refreshCredits(!failed);
         setRoutingErrorConnection(failed ? connection : null);
         setConfigReadConnection(connection);
         const route = failed ? null : cursorUsageRoute(useConfigStore.getState().config);
@@ -124,7 +127,7 @@ export function useUntitledOverview() {
       },
     });
     if (matchesSession()) setLoading(false);
-  }, [apiBase, managementKey, authenticated, connection, refreshUsage]);
+  }, [apiBase, managementKey, authenticated, connection, refreshUsage, refreshCredits]);
   useEffect(() => {
     // Synchronous subscriptions invalidate even a logout/login or A/B/A route change
     // batched into one React render. An old request must never become current again.
@@ -185,6 +188,7 @@ export function useUntitledOverview() {
       ? cursorSnapshot.usage
       : null;
   return {
+    openrouterCredits,
     cursorUsage:
       cursorCurrent?.status === 'loading'
         ? cursorCurrent
