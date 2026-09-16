@@ -42,7 +42,7 @@ The implementation task is an integration test of the requested Codex profile. I
 
 The router uses round-robin selection across eligible Pro and Business credentials with session affinity enabled. Four independent smoke sessions selected Pro, Business, Pro, Business. Repeated sessions stayed on the original account. This balances new sessions, not exact token counts, subscription prices, or quota percentages. Different models and unavailable credentials can change selection.
 
-OpenAI API credits and Cursor are not in the verified model pool. No Paleovalley integration is part of this workflow.
+OpenAI API credits are not in the verified model pool. Cursor is available through explicitly selected model names in a separate provider; it does not join the Codex round-robin credential pool. No Paleovalley integration is part of this workflow.
 
 ## Build and operational verification
 
@@ -82,3 +82,26 @@ The later GitHub review raised four additional findings: three fixed in this fol
 The overview now fetches quota when a credential has an auth index but no account ID header, and uses a successful usage response’s plan metadata before auth-file metadata. Eight regression cases cover account selection, plan precedence, normalization, and fallback. Exact five-hour and weekly duration classification is unchanged; monthly quota display remains outside this overview’s scope.
 
 The custom layout now uses the existing `PageTransition` component for document scroll reset and history restoration. `bun run verify` passed with 660 tests, ESLint, TypeScript, and the single-file production build. Local browser verification was unavailable because browser tab creation failed; the deploying maintainer still needs to verify custom-route navigation and back/forward scroll behavior against the installed artifact.
+
+
+## Cursor coding route — 2026-09-16
+
+The intended Cursor Pro+ account is connected through an isolated local provider. On-demand usage was visibly off during verification. Choose a tested model explicitly:
+
+```sh
+codex-router -m cursor/composer-2.5
+codex-router -m cursor/cursor-grok-4.6-low
+codex-router -m cursor/claude-fable-5-low
+```
+
+The default remains `gpt-5.6-luna`. The Codex client completed a real fixture task through Composer: it read the files, replaced the implementation stub, and passed all four existing tests. Independent host verification passed too. Additional API contract tests exercised streaming, tools, continuation, errors, and Responses translation. All three exposed models and the existing Codex model passed requests through the main endpoint.
+
+The dashboard's Cursor card reflects provider configuration and links to provider settings. It deliberately shows no remaining subscription balance, because the plugin cannot provide one. See [Cursor integration](cursor-investigation.md) for pinned versions, isolation, verification boundaries, and rollback.
+
+Frontend validation: `bun run verify` passed 691 tests across 91 files, ESLint, TypeScript, and the single-file build.
+
+Live browser validation: the deployed overview showed Cursor Pro+ as Configured, unavailable subscription remaining, and all three Codex accounts. The Cursor link opened provider settings, where `cursor-subscription` was active with three models and successful requests. Returning to the overview after a reload preserved these states. The section now reads Other integrations. Native browser inspection was used because extension tab control was unavailable; browser console inspection was not available through that route.
+
+The deployed single-file artifact SHA256 is `3f38a270cb4540d63f2fc6a8194a2480f85069e938fa10fbe74f851643e9aac6`. A pre-change panel backup is retained as `management.pre-cursor-20260916.html` on the VM. Both router services remained active after the panel replacement.
+
+Review `20260916-001424-3897b9f9` completed with seven local lenses and a Grok-through-Cursor pass. The serving model identity was not independently attested. One validated finding was fixed: every Cursor card state now links to provider settings, including an incomplete route. Its regression test failed before the fix and passed afterward. No actionable finding remains. Mounted-hook credential-switch coverage is still a test limitation; the refresh coordinator and state classifier are tested separately.

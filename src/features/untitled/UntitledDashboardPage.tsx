@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
-import { useAuthStore, useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores';
 import {
   filterRouterAccounts,
   routerPolicy,
@@ -11,6 +11,8 @@ import {
   type RouterWindow,
 } from '@/services/api/untitled';
 import { CreditBalance } from './CreditBalance';
+import { CursorIntegration } from './CursorIntegration';
+import { cursorIntegrationState } from './cursorIntegrationState';
 import { useUntitledOverview } from './useUntitledOverview';
 import styles from './UntitledDashboardPage.module.scss';
 
@@ -62,9 +64,13 @@ function QuotaMeter({ window, label }: { window: RouterWindow; label: string }) 
 
 export function UntitledDashboardPage() {
   const { t, i18n } = useTranslation();
-  const { accounts, checkedAt, loading, error, routingError, refresh } = useUntitledOverview();
-  const supportsPlugin = useAuthStore((state) => state.supportsPlugin);
+  const { accounts, checkedAt, loading, error, routingError, configLoading, refresh } =
+    useUntitledOverview();
   const config = useConfigStore((state) => state.config);
+  const cursorState = cursorIntegrationState(config, {
+    loading: configLoading,
+    error: routingError,
+  });
   const [filter, setFilter] = useState<RouterFilter>('all');
   const visible = filterRouterAccounts(accounts, filter);
   const active = accounts.filter((account) => account.status === 'active').length;
@@ -257,23 +263,7 @@ export function UntitledDashboardPage() {
           </div>
         </div>
         <div className={styles.integrations}>
-          <article>
-            <div className={styles.integrationIcon} aria-hidden="true">
-              ↗
-            </div>
-            <div>
-              <h3>
-                {t('untitled.cursor_name')}
-                <span>{t('untitled.not_connected')}</span>
-              </h3>
-              <p>{t('untitled.cursor_detail')}</p>
-              {supportsPlugin && (
-                <Link to="/plugins">
-                  {t('untitled.review_plugins')} <span aria-hidden="true">→</span>
-                </Link>
-              )}
-            </div>
-          </article>
+          <CursorIntegration state={cursorState} />
           <article>
             <div className={styles.integrationIcon} aria-hidden="true">
               ＋
