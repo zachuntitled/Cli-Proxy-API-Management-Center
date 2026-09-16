@@ -113,7 +113,7 @@ refreshes while visible, and clears expired observations rather than inventing
 stale usage. Browser suspension and provider-side billing rollover are covered by
 expiry/invalidation tests rather than a live billing-cycle wait.
 
-Validation passed: 706 frontend tests, ESLint, TypeScript, production build, and
+Validation passed: 711 frontend tests, ESLint, TypeScript, production build, and
 17 Python bridge tests. CI runs both suites. The initial deployed HTML SHA-256 was
 `1aa2d7e55c1c06be088131be2a5166f881eec680cec2a9547491b5f1883bf479`;
 the previous HTML was retained as `management.before-cursor-usage-6551899.html`.
@@ -123,3 +123,11 @@ main configuration root-owned and unreadable to its service user. Restoring
 `cliproxyapi:cliproxyapi` ownership, retaining mode 0600 and all configuration
 content, restored service. Future atomic configuration replacements must preserve
 ownership as well as mode. This repair did not change provider or billing settings.
+
+The reviewed refresh fix preserves a current observation during routine config
+reads and requests fresh Cursor usage at its own expiry or visible-tab resume.
+Clock-driven tests cover the 59-second cache/poll offset, hidden expiry, resume,
+billing reset and listener cleanup. The final deployed UI showed 0.57% / 0.49%;
+its observation advanced automatically across the next minute without the old
+unavailable gap in sampled browser checks. Final HTML SHA-256:
+`e5bde64815a1e13dbc9ea606e2cd2f6093ccb2a50923cabfbe5c48deb5865455`.
