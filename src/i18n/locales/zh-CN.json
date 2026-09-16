@@ -1878,7 +1878,7 @@
     "cursor_detail": "已有社区提供商插件，兼容性和订阅额度仍需验证。",
     "review_plugins": "查看插件",
     "api_name": "OpenAI API",
-    "api_detail": "独立按量计费的 API 连接。连接 API 余额前请设置支出限制。",
+    "api_detail": "单独按量计费的 API 访问。Codex / Work 点数不能用于此连接。",
     "provider_settings": "提供商设置",
     "refresh_note": "页面可见时每 60 秒刷新。缺失额度不会被视为可用额度。",
     "standard_dashboard": "标准仪表盘",
@@ -1902,6 +1902,14 @@
     "more": "更多工具与偏好设置",
     "management_navigation": "管理导航",
     "standard_layout": "使用标准布局",
-    "custom_layout": "返回 Untitled Router"
+    "custom_layout": "返回 Untitled Router",
+    "filter_prolite": "Pro Lite",
+    "plan_prolite": "ChatGPT Pro Lite",
+    "credit_balance": "Codex / Work 点数",
+    "credits_available": "可用",
+    "credits_unlimited": "无限",
+    "credits_unavailable": "不可用",
+    "credit_balance_not_reported": "点数可用，但服务商未提供余额。",
+    "credits_scope": "账户或工作区使用点数 · 与 API 计费分开。"
   }
 }

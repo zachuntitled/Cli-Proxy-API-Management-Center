@@ -53,6 +53,7 @@ const healthyAccounts: RouterAccountSnapshot[] = [
       fiveHour: { remaining: null, resetAt: null },
       weekly: { remaining: 50, resetAt: null },
     },
+    credits: { kind: 'unavailable' },
     quotaError: false,
     checkedAt: 1,
   },

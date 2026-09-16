@@ -4,6 +4,7 @@ import { apiCallApi } from '@/services/api/apiCall';
 import {
   normalizeRouterAccount,
   normalizeRouterQuota,
+  normalizeRouterCredits,
   filterRouterAccounts,
   untitledApi,
   routerPolicy,
@@ -68,9 +69,12 @@ describe('Untitled dashboard data', () => {
     const accounts = [
       normalizeRouterAccount({ name: 'a', id_token: { plan_type: 'pro' } }),
       normalizeRouterAccount({ name: 'b', id_token: { plan_type: 'team' } }),
+      normalizeRouterAccount({ name: 'c', id_token: { plan_type: 'prolite' } }),
     ];
     expect(filterRouterAccounts(accounts, 'business')).toEqual([accounts[1]]);
-    expect(filterRouterAccounts(accounts, 'all')).toHaveLength(2);
+    expect(filterRouterAccounts(accounts, 'all')).toHaveLength(3);
+    expect(filterRouterAccounts(accounts, 'prolite')).toEqual([accounts[2]]);
+    expect(filterRouterAccounts(accounts, 'pro')).toEqual([accounts[0]]);
     expect(filterRouterAccounts([], 'pro')).toEqual([]);
   });
 });
@@ -95,11 +99,15 @@ describe('Untitled gateway reads', () => {
       statusCode: 200,
       header: {},
       bodyText: '',
-      body: { rate_limit: { primary_window: { limit_window_seconds: 18000, used_percent: 10 } } },
+      body: {
+        credits: { balance: '2500', has_credits: true },
+        rate_limit: { primary_window: { limit_window_seconds: 18000, used_percent: 10 } },
+      },
     });
     const result = await untitledApi.listAccounts(new AbortController().signal);
     expect(result).toHaveLength(1);
     expect(result[0].plan).toBe('business');
+    expect(result[0].credits).toEqual({ kind: 'balance', balance: 2500 });
     expect(result[0].quota.fiveHour.remaining).toBe(90);
     expect(request).toHaveBeenCalledTimes(1);
     expect(request.mock.calls[0][0]).toMatchObject({
@@ -110,7 +118,9 @@ describe('Untitled gateway reads', () => {
   });
   test('fetches quota by auth index without an account ID header', async () => {
     spyOn(authFilesApi, 'list').mockResolvedValue({
-      files: [{ name: 'pro.json', provider: 'codex', authIndex: 'example-index', status: 'active' }],
+      files: [
+        { name: 'pro.json', provider: 'codex', authIndex: 'example-index', status: 'active' },
+      ],
     });
     const request = spyOn(apiCallApi, 'request').mockResolvedValue({
       statusCode: 200,
@@ -135,6 +145,9 @@ describe('Untitled gateway reads', () => {
     [{ planType: ' Team ' }, 'pro', 'business'],
     [{ plan_type: 'BUSINESS' }, 'pro', 'business'],
     [{ plan_type: 'plus' }, 'pro', 'other'],
+    [{ plan_type: ' ProLite ' }, 'pro', 'prolite'],
+    [{ planType: 'pro-lite' }, 'team', 'prolite'],
+    [{ plan_type: 'pro_lite' }, 'pro', 'prolite'],
     [{}, 'team', 'business'],
     [{ plan_type: null }, 'pro', 'pro'],
     [{ planType: ' ' }, 'pro', 'pro'],
@@ -180,6 +193,7 @@ describe('Untitled gateway reads', () => {
     });
     const [account] = await untitledApi.listAccounts(new AbortController().signal);
     expect(account.quotaError).toBe(true);
+    expect(account.credits).toEqual({ kind: 'unavailable' });
     expect(account.quota.weekly.remaining).toBeNull();
     expect(account.checkedAt).toBeNull();
   });
@@ -239,5 +253,35 @@ describe('Untitled gateway reads', () => {
         routerPolicy({ raw: { routing: { 'session-affinity': affinity } } }).affinity
       ).toBeNull();
     }
+  });
+});
+
+describe('Untitled credit balances', () => {
+  test.each(['2500', 2500, '0', 0, '12.5', '-2.5'])('preserves finite balance %j', (balance) => {
+    expect(normalizeRouterCredits({ credits: { balance } })).toEqual({
+      kind: 'balance',
+      balance: Number(balance),
+    });
+  });
+  test('distinguishes available, unlimited, and absent balances', () => {
+    expect(normalizeRouterCredits({ credits: { has_credits: true, balance: null } })).toEqual({
+      kind: 'available',
+    });
+    expect(normalizeRouterCredits({ credits: { unlimited: true, balance: '0' } })).toEqual({
+      kind: 'unlimited',
+    });
+    expect(normalizeRouterCredits({ credits: { has_credits: false, balance: null } })).toEqual({
+      kind: 'unavailable',
+    });
+    for (const payload of [null, {}, { credits: null }, { credits: [] }]) {
+      expect(normalizeRouterCredits(payload)).toEqual({ kind: 'unavailable' });
+    }
+  });
+  test.each(
+    ['', ' ', 'not a balance', 'Infinity', '0x10', true, false, [], {}, NaN, Infinity].map(
+      (value) => [value]
+    )
+  )('does not invent a numeric balance from %j', (balance) => {
+    expect(normalizeRouterCredits({ credits: { balance } })).toEqual({ kind: 'unavailable' });
   });
 });

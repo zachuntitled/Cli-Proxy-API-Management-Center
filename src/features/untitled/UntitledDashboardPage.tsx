@@ -7,10 +7,14 @@ import {
   filterRouterAccounts,
   routerPolicy,
   type RouterFilter,
+  type RouterPlan,
   type RouterWindow,
 } from '@/services/api/untitled';
+import { CreditBalance } from './CreditBalance';
 import { useUntitledOverview } from './useUntitledOverview';
 import styles from './UntitledDashboardPage.module.scss';
+
+const planIcons: Record<RouterPlan, string> = { pro: 'P', prolite: 'L', business: 'B', other: 'C' };
 
 function QuotaMeter({ window, label }: { window: RouterWindow; label: string }) {
   const { t, i18n } = useTranslation();
@@ -157,6 +161,7 @@ export function UntitledDashboardPage() {
             [
               'all',
               'pro',
+              'prolite',
               'business',
               ...(accounts.some((account) => account.plan === 'other') ? ['other'] : []),
             ] as RouterFilter[]
@@ -176,7 +181,7 @@ export function UntitledDashboardPage() {
               <header>
                 <div className={styles.accountIdentity}>
                   <div className={styles.accountIcon} aria-hidden="true">
-                    {account.plan === 'business' ? 'B' : account.plan === 'pro' ? 'P' : 'C'}
+                    {planIcons[account.plan]}
                   </div>
                   <div>
                     <h3>{t(`untitled.plan_${account.plan}`)}</h3>
@@ -196,6 +201,7 @@ export function UntitledDashboardPage() {
               </div>
               <QuotaMeter label={t('untitled.five_hour')} window={account.quota.fiveHour} />
               <QuotaMeter label={t('untitled.weekly')} window={account.quota.weekly} />
+              <CreditBalance credits={account.credits} />
               {account.quotaError && (
                 <p className={styles.quotaError}>{t('untitled.quota_error')}</p>
               )}

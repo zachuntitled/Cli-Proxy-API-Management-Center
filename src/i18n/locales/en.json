@@ -1880,7 +1880,7 @@
     "cursor_detail": "A community provider is available. Compatibility and subscription allowance still need validation.",
     "review_plugins": "Review plugins",
     "api_name": "OpenAI API",
-    "api_detail": "A separate, metered API connection. Add spending controls before connecting your API credits.",
+    "api_detail": "Separate, metered API access. Codex / Work credits do not fund this connection.",
     "provider_settings": "Provider settings",
     "refresh_note": "Refreshes every 60 seconds while visible. Missing quota is never treated as available capacity.",
     "standard_dashboard": "Standard dashboard",
@@ -1904,6 +1904,14 @@
     "more": "More tools and preferences",
     "management_navigation": "Management navigation",
     "standard_layout": "Use standard layout",
-    "custom_layout": "Return to Untitled Router"
+    "custom_layout": "Return to Untitled Router",
+    "filter_prolite": "Pro Lite",
+    "plan_prolite": "ChatGPT Pro Lite",
+    "credit_balance": "Codex / Work credits",
+    "credits_available": "Available",
+    "credits_unlimited": "Unlimited",
+    "credits_unavailable": "Unavailable",
+    "credit_balance_not_reported": "Credits are available; the provider does not report the balance.",
+    "credits_scope": "Account or workspace usage credits · separate from API billing."
   }
 }

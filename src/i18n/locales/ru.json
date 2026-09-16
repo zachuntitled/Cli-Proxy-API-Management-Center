@@ -1874,7 +1874,7 @@
     "cursor_detail": "Доступен провайдер от сообщества. Совместимость и квоты подписки ещё требуют проверки.",
     "review_plugins": "Посмотреть плагины",
     "api_name": "OpenAI API",
-    "api_detail": "Отдельное подключение API с оплатой по использованию. Настройте ограничения расходов перед подключением кредитов API.",
+    "api_detail": "Отдельный доступ к API с оплатой по использованию. Кредиты Codex / Work не оплачивают это подключение.",
     "provider_settings": "Настройки провайдеров",
     "refresh_note": "Обновляется каждые 60 секунд, пока страница видна. Отсутствующая квота не считается доступной.",
     "standard_dashboard": "Стандартная панель",
@@ -1898,6 +1898,14 @@
     "more": "Инструменты и предпочтения",
     "management_navigation": "Навигация управления",
     "standard_layout": "Стандартный интерфейс",
-    "custom_layout": "Вернуться в Untitled Router"
+    "custom_layout": "Вернуться в Untitled Router",
+    "filter_prolite": "Pro Lite",
+    "plan_prolite": "ChatGPT Pro Lite",
+    "credit_balance": "Кредиты Codex / Work",
+    "credits_available": "Доступны",
+    "credits_unlimited": "Без ограничений",
+    "credits_unavailable": "Недоступно",
+    "credit_balance_not_reported": "Кредиты доступны, но провайдер не сообщает баланс.",
+    "credits_scope": "Кредиты аккаунта или рабочего пространства · отдельно от оплаты API."
   }
 }

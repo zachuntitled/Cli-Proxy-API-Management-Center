@@ -1,6 +1,7 @@
 import type { AuthFileItem, Config } from '@/types';
 import { apiCallApi } from './apiCall';
 import { authFilesApi } from './authFiles';
+import { resolvePlanTier } from '@/utils/quota/planTier';
 import { isRecord } from '@/utils/helpers';
 import { normalizeAuthIndex } from '@/utils/authIndex';
 import { remainingPercent } from '@/features/untitled/quotaFormat';
@@ -13,7 +14,7 @@ import {
   resolveCodexPlanType,
 } from '@/utils/quota';
 
-export type RouterPlan = 'pro' | 'business' | 'other';
+export type RouterPlan = 'pro' | 'prolite' | 'business' | 'other';
 export type RouterFilter = 'all' | RouterPlan;
 export type RouterAccount = {
   key: string;
@@ -24,8 +25,11 @@ export type RouterAccount = {
 };
 export type RouterWindow = { remaining: number | null; resetAt: number | null };
 export type RouterQuota = { fiveHour: RouterWindow; weekly: RouterWindow };
+export type RouterCredits =
+  { kind: 'balance'; balance: number } | { kind: 'unlimited' | 'available' | 'unavailable' };
 export type RouterAccountSnapshot = RouterAccount & {
   quota: RouterQuota;
+  credits: RouterCredits;
   quotaError: boolean;
   checkedAt: number | null;
 };
@@ -38,8 +42,12 @@ const normalizeRouterStatus = (file: AuthFileItem): RouterAccount['status'] => {
   return file.status === 'active' ? 'active' : 'unknown';
 };
 
-const classifyRouterPlan = (plan: string | null): RouterPlan =>
-  plan === 'pro' ? 'pro' : plan === 'team' || plan === 'business' ? 'business' : 'other';
+const classifyRouterPlan = (plan: string | null): RouterPlan => {
+  if (plan === 'pro') return 'pro';
+  if (resolvePlanTier(plan) === 'premium') return 'prolite';
+  if (plan === 'team' || plan === 'business') return 'business';
+  return 'other';
+};
 
 export const normalizeRouterAccount = (file: AuthFileItem): RouterAccount => {
   const plan = resolveCodexPlanType(file);
@@ -78,6 +86,20 @@ export const normalizeRouterQuota = (payload: unknown): RouterQuota => {
   return result;
 };
 
+export const normalizeRouterCredits = (payload: unknown): RouterCredits => {
+  const credits = record(record(payload).credits);
+  if (credits.unlimited === true) return { kind: 'unlimited' };
+  const raw = credits.balance;
+  const balance =
+    typeof raw === 'number'
+      ? raw
+      : typeof raw === 'string' && /^-?\d+(?:\.\d+)?$/.test(raw.trim())
+        ? Number(raw)
+        : NaN;
+  if (Number.isFinite(balance)) return { kind: 'balance', balance };
+  return { kind: credits.has_credits === true ? 'available' : 'unavailable' };
+};
+
 export const filterRouterAccounts = <T extends RouterAccount>(
   accounts: T[],
   filter: RouterFilter
@@ -96,6 +118,7 @@ export const untitledApi = {
           // The fallback is only a render key; it is never used to select a credential.
           key: account.key || `unavailable-${index}`,
           quota: normalizeRouterQuota(null),
+          credits: normalizeRouterCredits(null),
           quotaError: false,
           checkedAt: null,
         };
@@ -122,6 +145,7 @@ export const untitledApi = {
             ...empty,
             plan: usagePlan ? classifyRouterPlan(usagePlan) : empty.plan,
             quota: normalizeRouterQuota(result.body),
+            credits: normalizeRouterCredits(result.body),
             checkedAt: Date.now(),
           };
         } catch {

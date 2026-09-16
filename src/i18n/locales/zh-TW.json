@@ -1904,7 +1904,7 @@
     "cursor_detail": "已有社群提供商外掛，仍需驗證相容性與訂閱額度。",
     "review_plugins": "查看外掛",
     "api_name": "OpenAI API",
-    "api_detail": "獨立按量計費的 API 連線。連接 API 餘額前請設定支出限制。",
+    "api_detail": "獨立按量計費的 API 存取。Codex / Work 點數不能用於此連線。",
     "provider_settings": "提供商設定",
     "refresh_note": "頁面可見時每 60 秒更新。缺少額度資料不會被視為可用額度。",
     "standard_dashboard": "標準儀表板",
@@ -1928,6 +1928,14 @@
     "more": "更多工具與偏好設定",
     "management_navigation": "管理導覽",
     "standard_layout": "使用標準版面",
-    "custom_layout": "返回 Untitled Router"
+    "custom_layout": "返回 Untitled Router",
+    "filter_prolite": "Pro Lite",
+    "plan_prolite": "ChatGPT Pro Lite",
+    "credit_balance": "Codex / Work 點數",
+    "credits_available": "可用",
+    "credits_unlimited": "無限",
+    "credits_unavailable": "無法取得",
+    "credit_balance_not_reported": "點數可用，但服務商未提供餘額。",
+    "credits_scope": "帳戶或工作區使用點數 · 與 API 計費分開。"
   }
 }
