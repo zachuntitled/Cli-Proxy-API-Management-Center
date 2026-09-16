@@ -63,18 +63,19 @@
   }
 }
 .brandMark {
-  font-size: 26px;
-  font-weight: 700;
-  width: 36px;
-  height: 36px;
+  width: 56px;
+  height: 32px;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  color: var(--bg-secondary);
-  background: var(--text-primary);
-  border-radius: 9px;
-  letter-spacing: -3px;
-  padding-right: 3px;
-  padding-bottom: 2px;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px;
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 }
 .nav {
   display: flex;
