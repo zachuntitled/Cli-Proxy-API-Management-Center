@@ -1951,7 +1951,7 @@
     "pools_refresh_failed": "Refresh failed. Capacity unavailable.",
     "pools_no_accounts": "No Codex accounts available.",
     "pools_partial": "Partial · {{known}} of {{total}} accounts reported",
-    "pools_accounts": "{{count}} accounts · weekly quota",
+    "pools_accounts": "Accounts: {{count}} · weekly quota",
     "pools_cursor_meter": "Cursor {{name}} remaining",
     "pools_credit_balance": "Credit balance · USD",
     "pools_purchased": "of {{value}} purchased",
