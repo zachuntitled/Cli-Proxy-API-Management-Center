@@ -1,14 +1,11 @@
+import { QuotaMeter } from './QuotaMeter';
+import { ClaudeConnection } from './ClaudeConnection';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { useConfigStore } from '@/stores';
-import {
-  filterRouterAccounts,
-  routerPolicy,
-  type RouterFilter,
-  type RouterWindow,
-} from '@/services/api/untitled';
+import { filterRouterAccounts, routerPolicy, type RouterFilter } from '@/services/api/untitled';
 import { AccountPools } from './AccountPoolsSection';
 import { ProviderMark } from './ProviderMark';
 import { CreditBalance } from './CreditBalance';
@@ -17,54 +14,14 @@ import { cursorIntegrationState } from './cursorIntegrationState';
 import { useUntitledOverview } from './useUntitledOverview';
 import styles from './UntitledDashboardPage.module.scss';
 
-function QuotaMeter({ window, label }: { window: RouterWindow; label: string }) {
-  const { t, i18n } = useTranslation();
-  const remaining = window.remaining;
-  const reset =
-    window.resetAt === null
-      ? null
-      : new Date(window.resetAt).toLocaleString(i18n.language, {
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-        });
-  return (
-    <div className={styles.meter}>
-      <div className={styles.meterLabel}>
-        <span>{label}</span>
-        <strong>
-          {remaining === null
-            ? t('untitled.unavailable')
-            : t('untitled.percent_remaining', { value: Math.round(remaining) })}
-        </strong>
-      </div>
-      {remaining === null ? (
-        <div className={styles.emptyTrack} aria-hidden="true" />
-      ) : (
-        <div
-          className={styles.track}
-          role="meter"
-          aria-label={label}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={remaining}
-          aria-valuetext={t('untitled.percent_remaining', { value: Math.round(remaining) })}
-        >
-          <span className={remaining <= 15 ? styles.low : ''} style={{ width: `${remaining}%` }} />
-        </div>
-      )}
-      <div className={styles.reset}>
-        {reset ? t('untitled.resets', { time: reset }) : t('untitled.reset_unavailable')}
-      </div>
-    </div>
-  );
-}
-
 export function UntitledDashboardPage() {
   const { t, i18n } = useTranslation();
   const {
     accounts,
+    claudeAccounts,
+    claudeCheckedAt,
+    claudeLoading,
+    claudeError,
     checkedAt,
     loading,
     error,
@@ -158,6 +115,10 @@ export function UntitledDashboardPage() {
         </div>
       </section>
       <AccountPools
+        claudeAccounts={claudeAccounts}
+        claudeCheckedAt={claudeCheckedAt}
+        claudeLoading={claudeLoading}
+        claudeError={claudeError}
         accounts={accounts}
         loading={loading}
         error={error}
@@ -193,8 +154,19 @@ export function UntitledDashboardPage() {
             </button>
           ))}
         </div>
-        <div className={styles.accounts} aria-busy={loading}>
+        <div className={styles.accounts} aria-busy={loading || claudeLoading}>
           <CursorIntegration state={cursorState} usage={cursorUsage} />
+          {claudeError && (
+            <p role="status" className={styles.quotaError}>
+              {t('untitled.claude_refresh_failed')}
+            </p>
+          )}
+          {claudeLoading && claudeCheckedAt === null && (
+            <p role="status">{t('untitled.claude_loading')}</p>
+          )}
+          {claudeAccounts.map((account) => (
+            <ClaudeConnection key={account.key} account={account} unavailable={claudeError} />
+          ))}
           {visible.map((account) => (
             <article
               className={`${styles.account} ${account.plan === 'business' ? styles.business : ''}`}

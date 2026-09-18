@@ -1816,6 +1816,11 @@
     }
   },
   "untitled": {
+    "pools_no_claude_accounts": "暂无 Claude Code 账户。",
+    "pools_claude_meter": "Claude Code 每周剩余容量",
+    "claude_refresh_failed": "无法刷新 Claude Code 账户。",
+    "claude_loading": "正在加载 Claude Code 账户…",
+    "claude_account": "Claude Code 账户",
     "workspace": "Untitled Creative",
     "overview": "总览",
     "subtitle": "集中查看你的编程账户与可用额度。",
@@ -1842,8 +1847,8 @@
     "affinity_off": "已禁用会话亲和性",
     "affinity_unknown": "会话亲和性信息不可用",
     "connected_accounts": "连接",
-    "pool_description": "Cursor 和 Codex 账户，分别显示状态与配额。",
-    "manage_accounts": "管理 Codex 账户",
+    "pool_description": "Cursor、Codex 和 Claude Code 账户，分别显示状态和配额。",
+    "manage_accounts": "管理账户",
     "filter_accounts": "筛选 Codex 账户",
     "filter_all": "所有 Codex 账户",
     "filter_pro": "Pro",

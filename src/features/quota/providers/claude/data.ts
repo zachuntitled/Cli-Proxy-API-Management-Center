@@ -153,7 +153,11 @@ const resolveClaudePlanType = (profile: ClaudeProfileResponse | null): string | 
   return null;
 };
 
-const fetchClaudeQuota = async (file: AuthFileItem, t: TFunction): Promise<ClaudeQuotaData> => {
+export const fetchClaudeQuota = async (
+  file: AuthFileItem,
+  t: TFunction,
+  options?: { signal?: AbortSignal; timeout?: number }
+): Promise<ClaudeQuotaData> => {
   const rawAuthIndex = file['auth_index'] ?? file.authIndex;
   const authIndex = normalizeAuthIndex(rawAuthIndex);
   if (!authIndex) {
@@ -161,18 +165,24 @@ const fetchClaudeQuota = async (file: AuthFileItem, t: TFunction): Promise<Claud
   }
 
   const [usageResult, profileResult] = await Promise.allSettled([
-    apiCallApi.request({
-      authIndex,
-      method: 'GET',
-      url: CLAUDE_USAGE_URL,
-      header: { ...CLAUDE_REQUEST_HEADERS },
-    }),
-    apiCallApi.request({
-      authIndex,
-      method: 'GET',
-      url: CLAUDE_PROFILE_URL,
-      header: { ...CLAUDE_REQUEST_HEADERS },
-    }),
+    apiCallApi.request(
+      {
+        authIndex,
+        method: 'GET',
+        url: CLAUDE_USAGE_URL,
+        header: { ...CLAUDE_REQUEST_HEADERS },
+      },
+      options
+    ),
+    apiCallApi.request(
+      {
+        authIndex,
+        method: 'GET',
+        url: CLAUDE_PROFILE_URL,
+        header: { ...CLAUDE_REQUEST_HEADERS },
+      },
+      options
+    ),
   ]);
 
   if (usageResult.status === 'rejected') {

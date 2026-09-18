@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthStore, useConfigStore } from '@/stores';
 import { untitledApi, type RouterAccountSnapshot } from '@/services/api/untitled';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
-import { refreshUntitledOverview } from './refreshUntitledOverview';
+import { claudeOverviewApi, type ClaudeAccountSnapshot } from '@/services/api/claudeOverview';
+import { refreshClaudeOverview, refreshUntitledOverview } from './refreshUntitledOverview';
 import {
   cursorUsageApi,
   emptyCursorUsage,
@@ -26,6 +27,13 @@ export function useUntitledOverview() {
     accounts: RouterAccountSnapshot[];
     checkedAt: number;
   } | null>(null);
+  const [claudeSnapshot, setClaudeSnapshot] = useState<{
+    connection: string;
+    accounts: ClaudeAccountSnapshot[];
+    checkedAt: number;
+  } | null>(null);
+  const [claudeLoading, setClaudeLoading] = useState(false);
+  const [claudeError, setClaudeError] = useState(false);
   const config = useConfigStore((state) => state.config);
   const [cursorSnapshot, setCursorSnapshot] = useState<{
     connection: string;
@@ -96,6 +104,8 @@ export function useUntitledOverview() {
     const request = ++generation.current;
     if (!authenticated) return;
     setLoading(true);
+    setClaudeLoading(true);
+    setClaudeError(false);
     setError(false);
     const matchesSession = () => {
       const current = useAuthStore.getState();
@@ -107,6 +117,16 @@ export function useUntitledOverview() {
         current.managementKey === managementKey
       );
     };
+    void refreshClaudeOverview({
+      signal: abort.signal,
+      isCurrent: matchesSession,
+      load: () => claudeOverviewApi.listAccounts(abort.signal),
+      onAccounts: (accounts) => setClaudeSnapshot({ connection, accounts, checkedAt: Date.now() }),
+      onError: () => {
+        setClaudeError(true);
+      },
+      onSettled: () => setClaudeLoading(false),
+    });
     await refreshUntitledOverview({
       signal: abort.signal,
       isCurrent: matchesSession,
@@ -140,6 +160,9 @@ export function useUntitledOverview() {
       generation.current += 1;
       clearCursor();
       setSnapshot(null);
+      setClaudeSnapshot(null);
+      setClaudeLoading(false);
+      setClaudeError(false);
       setConfigReadConnection(null);
     }, clearCursor);
     return () => {
@@ -179,6 +202,8 @@ export function useUntitledOverview() {
   }, [refresh]);
   useHeaderRefresh(refresh);
   const current = authenticated && snapshot?.connection === connection ? snapshot : null;
+  const claudeCurrent =
+    authenticated && claudeSnapshot?.connection === connection ? claudeSnapshot : null;
   const cursorCurrent =
     authenticated &&
     configReadConnection === connection &&
@@ -189,6 +214,10 @@ export function useUntitledOverview() {
       : null;
   return {
     openrouterCredits,
+    claudeAccounts: claudeCurrent?.accounts ?? [],
+    claudeCheckedAt: claudeCurrent?.checkedAt ?? null,
+    claudeLoading,
+    claudeError,
     cursorUsage:
       cursorCurrent?.status === 'loading'
         ? cursorCurrent

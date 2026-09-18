@@ -1812,6 +1812,11 @@
     }
   },
   "untitled": {
+    "pools_no_claude_accounts": "Нет доступных аккаунтов Claude Code.",
+    "pools_claude_meter": "Оставшаяся недельная квота Claude Code",
+    "claude_refresh_failed": "Не удалось обновить аккаунты Claude Code.",
+    "claude_loading": "Загрузка аккаунтов Claude Code…",
+    "claude_account": "Аккаунт Claude Code",
     "workspace": "Untitled Creative",
     "overview": "Обзор",
     "subtitle": "Ваши аккаунты для разработки в одном месте.",
@@ -1838,8 +1843,8 @@
     "affinity_off": "Привязка сессий выключена",
     "affinity_unknown": "Привязка сессий неизвестна",
     "connected_accounts": "Подключения",
-    "pool_description": "Аккаунты Cursor и Codex с отдельными статусами и данными о квотах.",
-    "manage_accounts": "Управление аккаунтами Codex",
+    "pool_description": "Аккаунты Cursor, Codex и Claude Code с отдельными статусами и квотами.",
+    "manage_accounts": "Управление аккаунтами",
     "filter_accounts": "Фильтр аккаунтов Codex",
     "filter_all": "Все аккаунты Codex",
     "filter_pro": "Pro",

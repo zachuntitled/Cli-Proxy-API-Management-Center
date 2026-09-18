@@ -1,3 +1,5 @@
+import type { ClaudeAccountSnapshot } from '@/services/api/claudeOverview';
+import { remainingPercent } from './quotaFormat';
 import type { RouterAccountSnapshot } from '@/services/api/untitled';
 import { expireCursorUsage, type CursorUsage } from '@/services/api/cursorUsage';
 import {
@@ -42,5 +44,25 @@ export function openrouterPool(credits: OpenrouterCreditsState, now = Date.now()
     remaining,
     maximum: credits.totalCredits,
     fill: credits.totalCredits > 0 ? clamp((remaining / credits.totalCredits) * 100) : 0,
+  };
+}
+
+export function claudePool(accounts: ClaudeAccountSnapshot[]) {
+  const readings = accounts
+    .map((account) =>
+      account.status === 'disabled' || account.quotaError
+        ? null
+        : remainingPercent(account.windows.find((window) => window.id === 'seven-day')?.usedPercent)
+    )
+    .filter((value): value is number => value !== null);
+  const remaining = readings.length ? readings.reduce((sum, value) => sum + value, 0) : null;
+  const maximum = accounts.length * 100;
+  return {
+    remaining,
+    maximum,
+    fill: remaining !== null && maximum ? (remaining / maximum) * 100 : null,
+    known: readings.length,
+    total: accounts.length,
+    partial: readings.length < accounts.length,
   };
 }

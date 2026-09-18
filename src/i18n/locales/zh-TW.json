@@ -1842,6 +1842,11 @@
     }
   },
   "untitled": {
+    "pools_no_claude_accounts": "暫無 Claude Code 帳戶。",
+    "pools_claude_meter": "Claude Code 每週剩餘容量",
+    "claude_refresh_failed": "無法重新整理 Claude Code 帳戶。",
+    "claude_loading": "正在載入 Claude Code 帳戶…",
+    "claude_account": "Claude Code 帳戶",
     "workspace": "Untitled Creative",
     "overview": "總覽",
     "subtitle": "集中查看你的程式開發帳戶與可用額度。",
@@ -1868,8 +1873,8 @@
     "affinity_off": "已停用工作階段親和性",
     "affinity_unknown": "無法取得工作階段親和性資訊",
     "connected_accounts": "連線",
-    "pool_description": "Cursor 與 Codex 帳戶，分別顯示狀態與配額。",
-    "manage_accounts": "管理 Codex 帳戶",
+    "pool_description": "Cursor、Codex 和 Claude Code 帳戶，分別顯示狀態和配額。",
+    "manage_accounts": "管理帳戶",
     "filter_accounts": "篩選 Codex 帳戶",
     "filter_all": "所有 Codex 帳戶",
     "filter_pro": "Pro",
