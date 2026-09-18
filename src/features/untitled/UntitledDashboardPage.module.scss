@@ -521,3 +521,19 @@
   color: var(--text-tertiary);
   overflow-wrap: anywhere;
 }
+
+.accountIdentity {
+  min-width: 0;
+  > div:last-child {
+    min-width: 0;
+  }
+  p {
+    overflow-wrap: anywhere;
+  }
+}
+.account > header {
+  gap: 12px;
+}
+.status {
+  flex-shrink: 0;
+}

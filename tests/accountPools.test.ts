@@ -1,5 +1,10 @@
 import { expect, test } from 'bun:test';
-import { codexPool, cursorPools, openrouterPool } from '@/features/untitled/accountPools';
+import {
+  claudePool,
+  codexPool,
+  cursorPools,
+  openrouterPool,
+} from '@/features/untitled/accountPools';
 import type { RouterAccountSnapshot } from '@/services/api/untitled';
 const account = (remaining: number | null, status = 'active') =>
   ({ quota: { weekly: { remaining } }, status }) as RouterAccountSnapshot;
@@ -81,4 +86,51 @@ test('expired observations cannot render while resume effects are delayed', () =
       now
     ).remaining
   ).toBeNull();
+});
+
+const claudeAccount = (used: number | null, overrides = {}) =>
+  ({
+    status: 'active',
+    quotaError: false,
+    windows: [
+      { id: 'seven-day', usedPercent: used },
+      { id: 'seven-day-fable', usedPercent: 0 },
+    ],
+    ...overrides,
+  }) as import('@/services/api/claudeOverview').ClaudeAccountSnapshot;
+test('Claude pools general weekly capacity only and reports partial coverage', () => {
+  expect(claudePool([claudeAccount(1), claudeAccount(100)])).toEqual({
+    remaining: 99,
+    maximum: 200,
+    fill: 49.5,
+    known: 2,
+    total: 2,
+    partial: false,
+  });
+  expect(claudePool([claudeAccount(1), claudeAccount(null)])).toEqual({
+    remaining: 99,
+    maximum: 200,
+    fill: 49.5,
+    known: 1,
+    total: 2,
+    partial: true,
+  });
+  expect(claudePool([claudeAccount(100)]).remaining).toBe(0);
+  for (const item of [
+    claudeAccount(null),
+    claudeAccount(NaN),
+    claudeAccount(0, { status: 'disabled' }),
+    claudeAccount(0, { quotaError: true }),
+    claudeAccount(0, { windows: [{ id: 'seven-day-fable', usedPercent: 0 }] }),
+  ]) {
+    expect(claudePool([item]).remaining).toBeNull();
+  }
+  expect(claudePool([])).toEqual({
+    remaining: null,
+    maximum: 0,
+    fill: null,
+    known: 0,
+    total: 0,
+    partial: false,
+  });
 });

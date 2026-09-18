@@ -1,3 +1,4 @@
+import type { ClaudeAccountSnapshot } from '@/services/api/claudeOverview';
 import { useTranslation } from 'react-i18next';
 import type { RouterAccountSnapshot } from '@/services/api/untitled';
 import { expireCursorUsage, type CursorUsage } from '@/services/api/cursorUsage';
@@ -6,12 +7,16 @@ import {
   type OpenrouterCreditsState,
 } from '@/services/api/openrouterCredits';
 import type { CursorIntegrationState } from './cursorIntegrationState';
-import { codexPool, cursorPools, openrouterPool } from './accountPools';
+import { claudePool, codexPool, cursorPools, openrouterPool } from './accountPools';
 import { ProviderMark } from './ProviderMark';
 import styles from './AccountPoolsSection.module.scss';
 
 export interface AccountPoolsProps {
   accounts: RouterAccountSnapshot[];
+  claudeAccounts?: ClaudeAccountSnapshot[];
+  claudeLoading?: boolean;
+  claudeError?: boolean;
+  claudeCheckedAt?: number | null;
   loading: boolean;
   error: boolean;
   checkedAt: number | null;
@@ -50,6 +55,10 @@ function PoolMeter({
 }
 export function AccountPools({
   accounts,
+  claudeAccounts = [],
+  claudeLoading = false,
+  claudeError = false,
+  claudeCheckedAt = null,
   loading,
   error,
   checkedAt,
@@ -64,6 +73,7 @@ export function AccountPools({
     );
   const money = (value: number) =>
     new Intl.NumberFormat(i18n.language, { style: 'currency', currency: 'USD' }).format(value);
+  const claude = claudePool(claudeError || claudeCheckedAt === null ? [] : claudeAccounts);
   const codex = codexPool(error || checkedAt === null ? [] : accounts);
   const usage = cursorUsage.status === 'loading' ? cursorUsage : expireCursorUsage(cursorUsage);
   const cursor = cursorPools(cursorState === 'configured' ? usage : { status: 'loading' });
@@ -117,6 +127,43 @@ export function AccountPools({
             text={codexText}
           />
           <p className={styles.note}>{codexNote()}</p>
+        </article>
+        <article className={styles.claude}>
+          <h3>
+            <ProviderMark provider="claude" />
+            Claude Code
+          </h3>
+          <p className={styles.label}>{t('untitled.pools_weekly')}</p>
+          <div className={styles.value}>
+            {claude.remaining === null ? '—' : percent(claude.remaining)}
+          </div>
+          <p className={styles.caption}>
+            {claude.total
+              ? t('untitled.pools_of', { value: percent(claude.maximum) })
+              : t('untitled.unavailable')}
+          </p>
+          <PoolMeter
+            value={claude.remaining}
+            maximum={claude.maximum}
+            fill={claude.fill}
+            label={t('untitled.pools_claude_meter')}
+            text={
+              claude.remaining === null
+                ? t('untitled.unavailable')
+                : t('untitled.pools_remaining', { value: percent(claude.remaining) })
+            }
+          />
+          <p className={styles.note}>
+            {claudeError
+              ? t('untitled.pools_refresh_failed')
+              : claudeLoading && claudeCheckedAt === null
+                ? t('untitled.loading')
+                : claude.total === 0
+                  ? t('untitled.pools_no_claude_accounts')
+                  : claude.partial
+                    ? t('untitled.pools_partial', { known: claude.known, total: claude.total })
+                    : t('untitled.pools_accounts', { count: claude.total })}
+          </p>
         </article>
         <article className={styles.cursor}>
           <h3>
