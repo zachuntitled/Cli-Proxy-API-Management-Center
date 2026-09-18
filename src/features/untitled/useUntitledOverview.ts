@@ -123,7 +123,6 @@ export function useUntitledOverview() {
       load: () => claudeOverviewApi.listAccounts(abort.signal),
       onAccounts: (accounts) => setClaudeSnapshot({ connection, accounts, checkedAt: Date.now() }),
       onError: () => {
-        setClaudeSnapshot(null);
         setClaudeError(true);
       },
       onSettled: () => setClaudeLoading(false),
