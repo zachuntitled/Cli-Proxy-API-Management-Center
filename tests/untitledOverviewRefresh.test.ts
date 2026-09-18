@@ -130,3 +130,57 @@ describe('Untitled overview refresh', () => {
     expect(refresh.onRoutingError).not.toHaveBeenCalled();
   });
 });
+
+describe('independent Claude overview refresh', () => {
+  test('slow Claude does not hold Codex completion; Claude failure is isolated', async () => {
+    const { refreshClaudeOverview } = await import('@/features/untitled/refreshUntitledOverview');
+    const claude = deferred<never[]>();
+    const onAccounts = mock(() => {});
+    const onError = mock(() => {});
+    const onSettled = mock(() => {});
+    const finished = refreshClaudeOverview({
+      signal: new AbortController().signal,
+      isCurrent: () => true,
+      load: () => claude.promise,
+      onAccounts,
+      onError,
+      onSettled,
+    });
+    const codex = createRefresh();
+    codex.accounts.resolve(healthyAccounts);
+    codex.config.resolve({});
+    await codex.finished;
+    expect(codex.onAccounts).toHaveBeenCalledWith(healthyAccounts);
+    expect(onSettled).not.toHaveBeenCalled();
+    claude.reject(new Error('Claude unavailable'));
+    await finished;
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onSettled).toHaveBeenCalledTimes(1);
+    expect(codex.onAccountsError).not.toHaveBeenCalled();
+  });
+  for (const mode of ['abort', 'obsolete'] as const) {
+    test(`late Claude success and failure cannot commit after ${mode}`, async () => {
+      const { refreshClaudeOverview } = await import('@/features/untitled/refreshUntitledOverview');
+      for (const fail of [false, true]) {
+        const claude = deferred<never[]>();
+        const controller = new AbortController();
+        let current = true;
+        const commit = mock(() => {});
+        const finished = refreshClaudeOverview({
+          signal: controller.signal,
+          isCurrent: () => current,
+          load: () => claude.promise,
+          onAccounts: commit,
+          onError: commit,
+          onSettled: commit,
+        });
+        if (mode === 'abort') controller.abort();
+        else current = false;
+        if (fail) claude.reject(new Error('Late failure'));
+        else claude.resolve([]);
+        await finished;
+        expect(commit).not.toHaveBeenCalled();
+      }
+    });
+  }
+});

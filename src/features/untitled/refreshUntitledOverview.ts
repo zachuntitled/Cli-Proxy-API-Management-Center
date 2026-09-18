@@ -1,3 +1,4 @@
+import type { ClaudeAccountSnapshot } from '@/services/api/claudeOverview';
 import type { RouterAccountSnapshot } from '@/services/api/untitled';
 
 interface OverviewRefreshOptions {
@@ -40,4 +41,24 @@ export async function refreshUntitledOverview({
       }
     })(),
   ]);
+}
+
+// Launched separately by the hook so Claude cannot hold Codex loading open.
+export async function refreshClaudeOverview(options: {
+  signal: AbortSignal;
+  isCurrent: () => boolean;
+  load: () => Promise<ClaudeAccountSnapshot[]>;
+  onAccounts: (accounts: ClaudeAccountSnapshot[]) => void;
+  onError: () => void;
+  onSettled: () => void;
+}): Promise<void> {
+  const canCommit = () => !options.signal.aborted && options.isCurrent();
+  try {
+    const accounts = await options.load();
+    if (canCommit()) options.onAccounts(accounts);
+  } catch {
+    if (canCommit()) options.onError();
+  } finally {
+    if (canCommit()) options.onSettled();
+  }
 }
