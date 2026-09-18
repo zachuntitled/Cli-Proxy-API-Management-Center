@@ -154,7 +154,7 @@ export function UntitledDashboardPage() {
             </button>
           ))}
         </div>
-        <div className={styles.accounts} aria-busy={loading}>
+        <div className={styles.accounts} aria-busy={loading || claudeLoading}>
           <CursorIntegration state={cursorState} usage={cursorUsage} />
           {claudeError && (
             <p role="status" className={styles.quotaError}>
